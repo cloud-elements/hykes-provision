@@ -58,6 +58,9 @@ Core Commands:
   destroy    Destroy cloud
 ```
 
+> __PROTIP:__ Ensure Tugboat and/or the AWS CLI are initialized themselves before issuing any core
+commands.
+
 > __PROTIP:__ All commands prompt for required arguments which were not provided via options or
 arguments. This allows for both traditional usage and prompt-based usage.
 

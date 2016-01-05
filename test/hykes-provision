@@ -9,7 +9,10 @@
 }
 
 @test "init should fail predictably" {
-  run build/bin/hykes-provision init --blueprint=blueprint --password=password --token=token
+  run build/bin/hykes-provision init \
+    --blueprint=blueprint \
+    --password=password \
+    --token=token
   [ $status -eq 1 ]
 }
 
