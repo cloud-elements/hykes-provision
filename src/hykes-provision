@@ -5,7 +5,6 @@ libdir=
 ref=
 
 case "${1}" in
-
   --help|-h)
     a=(${0//\// })
     bin=${a[${#a[@]}-1]}
