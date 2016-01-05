@@ -24,7 +24,7 @@ gem:
 	@gem install tugboat
 
 install: | stub
-	@rsync -a cli/src/ ${bindir}/
+	@rsync -a src/ ${bindir}/
 ifeq (${uname}, Darwin)
 	@$(eval _bindir := $(shell greadlink -f ${bindir}))
 	@$(eval _libdir := $(shell greadlink -f ${libdir}))
@@ -47,7 +47,7 @@ stub:
 test: | test-cli
 
 test-cli: | install
-	@cli/test/hykes-provision
+	@test/hykes-provision
 
 uninstall:
 	@rm -rf ${bindir}

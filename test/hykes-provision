@@ -1,0 +1,25 @@
+#!/usr/bin/env bats
+
+@test "--help should output usage" {
+  run build/bin/hykes-provision --help
+  [ $status -eq 0 ]
+  [ "${#lines[@]}" -gt 1 ]
+}
+
+@test "-h should output usage" {
+  run build/bin/hykes-provision -h
+  [ $status -eq 0 ]
+  [ "${#lines[@]}" -gt 1 ]
+}
+
+@test "--version should output version" {
+  run build/bin/hykes-provision --version
+  [ $status -eq 0 ]
+  [ $(expr "$output" : "v*") -ne 0 ]
+}
+
+@test "-v should output version" {
+  run build/bin/hykes-provision -v
+  [ $status -eq 0 ]
+  [ $(expr "$output" : "v*") -ne 0 ]
+}
