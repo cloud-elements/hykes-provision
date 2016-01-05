@@ -1,5 +1,18 @@
 #!/usr/bin/env bats
 
+@test "init should succeed predictably" {
+  run build/bin/hykes-provision init \
+    --blueprint=${HYKES_PROVISION_BLUEPRINT} \
+    --password=${HYKES_PROVISION_PASSWORD} \
+    --token=${HYKES_PROVISION_TOKEN}
+  [ $status -eq 0 ]
+}
+
+@test "init should fail predictably" {
+  run build/bin/hykes-provision init --blueprint=blueprint --password=password --token=token
+  [ $status -eq 1 ]
+}
+
 @test "--help should output usage" {
   run build/bin/hykes-provision --help
   [ $status -eq 0 ]
