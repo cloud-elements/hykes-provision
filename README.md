@@ -46,12 +46,16 @@ $ sudo make dependencies && make install
 ```bash
 $ hykes-provision --help
 Usage:
-  hykes-provision create <provider> [--local-dns|-l]
+  hykes-provision create <provider> [--combined|-c] [--local-dns|-l]
   hykes-provision init <blueprint> [--password|-p <password>] [--token|-t <token>]
-  hykes-provision destroy <provider> [--local-dns|-l]
+  hykes-provision destroy <provider>
 
 Setup Commands:
-  init     Initialize to use a specific blueprint
+  init    Initialize to use a specific blueprint
+
+Core Commands:
+  create     Create cloud
+  destroy    Destroy cloud
 ```
 
 > __PROTIP:__ All commands prompt for required arguments which were not provided via options or
