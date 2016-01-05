@@ -20,7 +20,7 @@ case "${1}" in
 
     test -z "${blueprint}" && read -p 'Enter blueprint (e.g. ce_ops): ' blueprint
     test -z "${password}" && read -p 'Enter password: ' -s password && echo
-    test -z "${token}" && read -p 'Enter github access token: ' -s token && echo
+    test -z "${token}" && read -p 'Enter GitHub access token: ' -s token && echo
 
     echo -n 'Downloading: '
     rm -f "${libdir}/.hykes-blueprints.tar.gz" && \
