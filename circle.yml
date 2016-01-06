@@ -1,0 +1,8 @@
+dependencies:
+  pre:
+    - sudo make apt
+    - make gem
+
+test:
+  override:
+    - make test

@@ -1,0 +1,300 @@
+#!/usr/bin/env bash
+
+bindir=
+libdir=
+ref=
+
+function droplet-create() {
+  tugboat create "${1}" --size="${2}" && \
+  sleep 60 && { tugboat wait "${1}" --state=active || exit 0 ; }
+}
+
+function droplet-destroy() {
+  yes | tugboat destroy "${1}"
+}
+
+function droplet-exists() {
+  tugboat info "${1}" 2>&1 > /dev/null
+}
+
+function droplet-ip() {
+  echo "$(tugboat info -n "${1}" --attribute=ip4 --porcelain)"
+}
+
+function hosts-create() {
+  echo "${1} ${2}" | sudo tee -a /etc/hosts
+}
+
+function hosts-destroy() {
+  sudo sed -i '' "/^${1}/d" /etc/hosts
+}
+
+function inventory-ls() {
+  tr ' ' '\n' < "${libdir}/hykes.ini" | egrep --color=never '^.+\[[0-9\:]+\]\.'
+}
+
+function inventory-role-count() {
+  local i=$(inventory-role-slice "${1}" | tail -c 3 | head -c 1)
+
+  echo "$(( i + 1 ))"
+}
+
+function inventory-role-slice() {
+  echo "$(echo "${1}" | egrep --color=never -o '\[[0-9\:]+\]')"
+}
+
+function inventory-role-unfurl() {
+  local slice=$(inventory-role-slice ${1})
+  local count=$(inventory-role-count ${1})
+
+  for ((i=0; i<=count-1; i++)); do
+    echo ${1/"$slice"/"$i"}
+  done
+}
+
+function pprint() {
+  local blue='\033[1;34m'
+  local bold='\033[1m'
+  local green='\033[0;32m'
+  local red='\033[0;31m'
+  local normal='\033[0m'
+  local white='\033[0;37m'
+
+  case "${1}" in
+    bad) echo -e "${red}${2}${normal}" ;;
+    good) echo -e "${green}${2}${normal}" ;;
+    heading) echo -e "${blue}==>${normal} ${white}${bold}${2}${normal}" ;;
+    *) echo "${2}" ;;
+  esac
+}
+
+case "${1}" in
+  create)
+    while (( "$#" )); do
+      case "${2}" in
+        --combined) combined=0 ; shift ;;
+        --local-dns) localdns=0 ; shift ;;
+        --provider=*) provider=${2/--provider=/''} ; shift ;;
+        -c) combined=0 ; shift ;;
+        -l) localdns=0 ; shift ;;
+        -p*) provider=${3} ; shift ; shift ;;
+        *) test -n "${2}" && test -z "${provider}" && provider=${2} ; shift ;;
+      esac
+    done
+
+    test -z "${provider}" && read -p 'Enter provider (e.g. amazon, digitalocean): ' provider
+
+    # Export functions for xargs. Not done at a higher scope since subshells using /bin/sh, used
+    # in init, barf on the function names with dashes.
+    export -f inventory-role-count
+    export -f inventory-role-slice
+    export -f inventory-role-unfurl
+    export -f droplet-exists
+    export -f droplet-create
+
+    inv=$(inventory-ls)
+    invunfurl=$(echo "${inv}" | xargs -I{} bash -c '! inventory-role-unfurl {}')
+    app=$(echo "${inv}" | grep 'app')
+    appunfurl=$(echo "${invunfurl}" | grep 'app')
+
+    case "${provider}" in
+      amazon) echo 'Provider not supported' ; exit 1 ;;
+      digitalocean)
+        case "${combined}" in
+          0)
+            pprint heading 'Checking for existing cloud'
+            echo "${appunfurl}" | xargs -I{} bash -c '! droplet-exists {}'
+            case "$?" in
+              0) pprint good 'done' ;;
+              *) pprint bad 'fail (existing cloud found)' ; exit 1 ;;
+            esac
+
+            pprint heading 'Creating cloud'
+            echo "${appunfurl}" | xargs -I{} bash -c 'droplet-create {} 512mb'
+            case "$?" in
+              0) pprint good 'done' ;;
+              *) pprint bad 'fail' ; exit 1 ;;
+            esac
+
+            # Loop through all combined servers, deterine their IP, and then create mapping in
+            # /etc/hosts. The primary loadbalance role, which exists on the first combined server,
+            # needs to have "extra" records so that the core endpoints are reachable upon the cloud
+            # being successfully built (e.g. api.example.com, console.example.com)
+            pprint heading 'Creating DNS'
+            fqdn=$(grep 'base_fqdn:' ${libdir}/hykes.yml | sed 's/base_fqdn://' | tr ' ' '\0')
+            count=$(inventory-role-count "${app}")
+            for ((i=0; i<=count-1; i++)); do
+              a=$(echo "${appunfurl}" | sed -n "$(( ${i} + 1 ))p")
+              ip=$(droplet-ip "${a}")
+              rs=$(echo "${invunfurl}" | grep "${i}." | tr '\n' ' ')
+              if [ ${i} -eq 0 ]; then
+                rs="${rs} ${fqdn} api.${fqdn} console.${fqdn} logs.${fqdn}"
+              fi
+
+              hosts-create "${ip}" "${rs}"
+            done
+            case "$?" in
+              0) pprint good 'done' ;;
+              *) pprint bad 'fail' ; exit 1 ;;
+            esac
+          ;;
+          *) echo 'Vertical combination type not supported' ; exit 1 ;;
+        esac
+      ;;
+    esac
+  ;;
+
+  destroy)
+    while (( "$#" )); do
+      case "${2}" in
+        --combined) combined=0 ; shift ;;
+        --local-dns) localdns=0 ; shift ;;
+        --provider=*) provider=${2/--provider=/''} ; shift ;;
+        -c) combined=0 ; shift ;;
+        -l) localdns=0 ; shift ;;
+        -p*) provider=${3} ; shift ; shift ;;
+        *) test -n "${2}" && test -z "${provider}" && provider=${2} ; shift ;;
+      esac
+    done
+
+    test -z "${provider}" && read -p 'Enter provider (e.g. amazon, digitalocean): ' provider
+
+    # Export functions for xargs. Not done at a higher scope since subshells using /bin/sh, used
+    # in init, barf on the function names with dashes.
+    export -f inventory-role-count
+    export -f inventory-role-slice
+    export -f inventory-role-unfurl
+    export -f droplet-exists
+    export -f droplet-destroy
+
+    inv=$(inventory-ls)
+    invunfurl=$(echo "${inv}" | xargs -I{} bash -c '! inventory-role-unfurl {}')
+    app=$(echo "${inv}" | grep 'app')
+    appunfurl=$(echo "${invunfurl}" | grep 'app')
+
+    case "${provider}" in
+      amazon) echo 'Provider not supported' ; exit 1 ;;
+      digitalocean)
+        case "${combined}" in
+          0)
+            pprint heading 'Checking for existing cloud'
+            echo "${appunfurl}" | xargs -I{} bash -c '! droplet-exists {}'
+            case "$?" in
+              0) pprint bad 'fail (existing cloud not found)' ; exit 1 ;;
+              *) pprint good 'done' ;;
+            esac
+
+            # Loop through all combined servers, deterine their IP, and then destroy the mapping
+            # in /etc/hosts.
+            pprint heading 'Destroying DNS'
+            count=$(inventory-role-count "${app}")
+            for ((i=0; i<=count-1; i++)); do
+              a=$(echo "${appunfurl}" | sed -n "$(( ${i} + 1 ))p")
+              ip=$(droplet-ip "${a}")
+
+              hosts-destroy "${ip}"
+            done
+            case "$?" in
+              0) pprint good 'done' ;;
+              *) pprint bad 'fail' ; exit 1 ;;
+            esac
+
+            pprint heading 'Destroying cloud'
+            echo "${appunfurl}" | xargs -I{} bash -c 'droplet-destroy {}'
+            case "$?" in
+              0) pprint good 'done' ;;
+              *) pprint bad 'fail' ; exit 1 ;;
+            esac
+          ;;
+          *) echo 'Vertical combination type not supported' ; exit 1 ;;
+        esac
+      ;;
+    esac
+  ;;
+
+  init)
+    while (( "$#" )); do
+      case "${2}" in
+        --blueprint=*) blueprint=${2/--blueprint=/''} ; shift ;;
+        --password=*) password=${2/--password=/''} ; shift ;;
+        --token=*) token=${2/--token=/''} ; shift ;;
+        -b*) blueprint=${3} ; shift ; shift ;;
+        -p*) password=${3} ; shift ; shift ;;
+        -t*) token=${3} ; shift ; shift ;;
+        *) test -n "${2}" && blueprint=${2} ; shift ;;
+      esac
+    done
+
+    test -z "${blueprint}" && read -p 'Enter blueprint (e.g. ce_ops): ' blueprint
+    test -z "${password}" && read -p 'Enter password: ' -s password && echo
+    test -z "${token}" && read -p 'Enter GitHub access token: ' -s token && echo
+
+    pprint heading 'Downloading'
+    rm -f "${libdir}/.hykes-blueprints.tar.gz" && \
+    curl --fail --silent --location --retry 4 --retry-delay 8 \
+      --header "Authorization: token ${token}" \
+      --header "Accept: application/vnd.github.v3.raw" \
+      --output "${libdir}/.hykes-blueprints.tar.gz" \
+      "https://api.github.com/repos/cloud-elements/hykes-blueprints/tarball/${ref}"
+    case "$?" in
+      0) pprint good 'done' ;;
+      *) pprint bad 'fail' ; exit 1 ;;
+    esac
+
+    pprint heading 'Decompressing'
+    rm -rf "${libdir}/.hykes-blueprints" && \
+    mkdir "${libdir}/.hykes-blueprints" && \
+    tar -x -f "${libdir}/.hykes-blueprints.tar.gz" -C "${libdir}/.hykes-blueprints" --strip 1
+    case "$?" in
+      0) pprint good 'done' ;;
+      *) pprint bad 'fail' ; exit 1 ;;
+    esac
+
+    pprint heading 'Building'
+    (cd "${libdir}/.hykes-blueprints" ; make install)
+    case "$?" in
+      0) pprint good 'done' ;;
+      *) pprint bad 'fail' ; exit 1 ;;
+    esac
+
+    pprint heading 'Decrypting'
+    (cd "${libdir}/.hykes-blueprints" ; build/bin/hykes-blueprints decrypt "${blueprint}" --password="${password}" 2>&1 > /dev/null)
+    case "$?" in
+      0) pprint good 'done' ;;
+      *) pprint bad 'fail' ; exit 1 ;;
+    esac
+
+    pprint heading 'Moving'
+    rm -f "${libdir}/hykes.ini" && \
+    mv "${libdir}/.hykes-blueprints/build/lib/${blueprint}/hykes.ini" "${libdir}/hykes.ini" && \
+    rm -f "${libdir}/hykes.yml" && \
+    mv "${libdir}/.hykes-blueprints/build/lib/${blueprint}/hykes.yml" "${libdir}/hykes.yml"
+    case "$?" in
+      0) pprint good 'done' ;;
+      *) pprint bad 'fail' ; exit 1 ;;
+    esac
+  ;;
+
+  --help|-h)
+    a=(${0//\// })
+    bin=${a[${#a[@]}-1]}
+
+    echo 'Usage:'
+    echo "  ${bin} create <provider> [--combined|-c] [--local-dns|-l]"
+    echo "  ${bin} init <blueprint> [--password|-p <password>] [--token|-t <token>]]"
+    echo "  ${bin} destroy <provider> [--combined|-c] [--local-dns|-l]"
+    echo
+    echo "Setup Commands:"
+    echo "  init    Initialize to use a specific blueprint"
+    echo
+    echo "Core Commands:"
+    echo "  create     Create cloud"
+    echo "  destroy    Destroy cloud"
+  ;;
+
+  --version|-v) echo 'v0.0.0' ;;
+
+  *) ${0} --help ; exit 1 ;;
+esac
+
+exit 0
