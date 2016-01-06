@@ -67,17 +67,40 @@ function pprint() {
   esac
 }
 
+function specs-to-droplet-size() {
+  case "${1}" in
+    consolidated)
+      local tiny='512mb'
+      local small='4gb'
+      local medium='8gb'
+      local large='16gb'
+      local huge='64gb'
+
+      echo ${!2}
+    ;;
+    *) echo 'Role not supported' ; return 1 ;;
+  esac
+}
+
 case "${1}" in
   create)
+    specs='medium'
+
     while (( "$#" )); do
       case "${2}" in
         --consolidated) consolidated=0 ; shift ;;
         --local-dns) localdns=0 ; shift ;;
         --provider=*) provider=${2/--provider=/''} ; shift ;;
+        --specs=*) specs=${2/--specs=/''} ; shift ;;
         -c) consolidated=0 ; shift ;;
         -l) localdns=0 ; shift ;;
         -p*) provider=${3} ; shift ; shift ;;
-        *) test -n "${2}" && test -z "${provider}" && provider=${2} ; shift ;;
+        -s*) specs=${3} ; shift ; shift ;;
+        *)
+          test -n "${2}" && test -n "${provider}" && specs=${2}
+          test -n "${2}" && test -z "${provider}" && provider=${2}
+          shift
+        ;;
       esac
     done
 
@@ -85,11 +108,11 @@ case "${1}" in
 
     # Export functions for xargs. Not done at a higher scope since subshells using /bin/sh, used
     # in init, barf on the function names with dashes.
+    export -f droplet-exists
+    export -f droplet-create
     export -f inventory-role-count
     export -f inventory-role-slice
     export -f inventory-role-unfurl
-    export -f droplet-exists
-    export -f droplet-create
 
     inv=$(inventory-ls)
     invunfurl=$(echo "${inv}" | xargs -I{} bash -c '! inventory-role-unfurl {}')
@@ -109,7 +132,8 @@ case "${1}" in
             esac
 
             pprint heading 'Creating cloud'
-            echo "${appunfurl}" | xargs -I{} bash -c 'droplet-create {} 8gb'
+            size=$(specs-to-droplet-size consolidated "${specs}")
+            echo "${appunfurl}" | xargs -I{} bash -c "droplet-create {} ${size}"
             case "$?" in
               0) pprint good 'done' ;;
               *) pprint bad 'fail' ; exit 1 ;;
@@ -160,11 +184,11 @@ case "${1}" in
 
     # Export functions for xargs. Not done at a higher scope since subshells using /bin/sh, used
     # in init, barf on the function names with dashes.
+    export -f droplet-exists
+    export -f droplet-destroy
     export -f inventory-role-count
     export -f inventory-role-slice
     export -f inventory-role-unfurl
-    export -f droplet-exists
-    export -f droplet-destroy
 
     inv=$(inventory-ls)
     invunfurl=$(echo "${inv}" | xargs -I{} bash -c '! inventory-role-unfurl {}')
@@ -280,6 +304,7 @@ case "${1}" in
 
     echo 'Usage:'
     echo "  ${bin} create <provider> [--consolidated|-c] [--local-dns|-l]"
+    echo "    [--specs|-s <tiny|small|medium|large|huge>]"
     echo "  ${bin} init <blueprint> [--password|-p <password>] [--token|-t <token>]]"
     echo "  ${bin} destroy <provider> [--consolidated|-c] [--local-dns|-l]"
     echo
