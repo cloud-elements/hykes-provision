@@ -47,6 +47,7 @@ $ sudo make dependencies && make install
 $ hykes-provision --help
 Usage:
   hykes-provision create <provider> [--consolidated|-c] [--local-dns|-l]
+    [--specs|-s <tiny|small|medium|large|huge>]
   hykes-provision init <blueprint> [--password|-p <password>] [--token|-t <token>]]
   hykes-provision destroy <provider> [--consolidated|-c] [--local-dns|-l]
 
