@@ -109,7 +109,7 @@ case "${1}" in
             esac
 
             pprint heading 'Creating cloud'
-            echo "${appunfurl}" | xargs -I{} bash -c 'droplet-create {} 512mb'
+            echo "${appunfurl}" | xargs -I{} bash -c 'droplet-create {} 8gb'
             case "$?" in
               0) pprint good 'done' ;;
               *) pprint bad 'fail' ; exit 1 ;;
