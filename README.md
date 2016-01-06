@@ -46,9 +46,9 @@ $ sudo make dependencies && make install
 ```bash
 $ hykes-provision --help
 Usage:
-  hykes-provision create <provider> [--combined|-c] [--local-dns|-l]
-  hykes-provision init <blueprint> [--password|-p <password>] [--token|-t <token>]
-  hykes-provision destroy <provider> [--combined|-c] [--local-dns|-l]
+  hykes-provision create <provider> [--consolidated|-c] [--local-dns|-l]
+  hykes-provision init <blueprint> [--password|-p <password>] [--token|-t <token>]]
+  hykes-provision destroy <provider> [--consolidated|-c] [--local-dns|-l]
 
 Setup Commands:
   init    Initialize to use a specific blueprint
