@@ -34,9 +34,8 @@ function inventory-ls() {
 }
 
 function inventory-role-count() {
-  local i=$(inventory-role-slice "${1}" | tail -c 3 | head -c 1)
-
-  echo "$(( i + 1 ))"
+  local upper=$(inventory-role-slice "${1}" | tail -c 3 | head -c 1)
+  echo "$(( upper + 1 ))"
 }
 
 function inventory-role-slice() {
@@ -72,10 +71,10 @@ case "${1}" in
   create)
     while (( "$#" )); do
       case "${2}" in
-        --combined) combined=0 ; shift ;;
+        --consolidated) consolidated=0 ; shift ;;
         --local-dns) localdns=0 ; shift ;;
         --provider=*) provider=${2/--provider=/''} ; shift ;;
-        -c) combined=0 ; shift ;;
+        -c) consolidated=0 ; shift ;;
         -l) localdns=0 ; shift ;;
         -p*) provider=${3} ; shift ; shift ;;
         *) test -n "${2}" && test -z "${provider}" && provider=${2} ; shift ;;
@@ -100,7 +99,7 @@ case "${1}" in
     case "${provider}" in
       amazon) echo 'Provider not supported' ; exit 1 ;;
       digitalocean)
-        case "${combined}" in
+        case "${consolidated}" in
           0)
             pprint heading 'Checking for existing cloud'
             echo "${appunfurl}" | xargs -I{} bash -c '! droplet-exists {}'
@@ -116,8 +115,8 @@ case "${1}" in
               *) pprint bad 'fail' ; exit 1 ;;
             esac
 
-            # Loop through all combined servers, deterine their IP, and then create mapping in
-            # /etc/hosts. The primary loadbalance role, which exists on the first combined server,
+            # Loop through all consolidated servers, deterine their IP, and then create mapping in
+            # /etc/hosts. The primary loadbalance role, which exists on the first consolidated server,
             # needs to have "extra" records so that the core endpoints are reachable upon the cloud
             # being successfully built (e.g. api.example.com, console.example.com)
             pprint heading 'Creating DNS'
@@ -138,7 +137,7 @@ case "${1}" in
               *) pprint bad 'fail' ; exit 1 ;;
             esac
           ;;
-          *) echo 'Vertical combination type not supported' ; exit 1 ;;
+          *) echo 'Unconsolidated servers not supported' ; exit 1 ;;
         esac
       ;;
     esac
@@ -147,10 +146,10 @@ case "${1}" in
   destroy)
     while (( "$#" )); do
       case "${2}" in
-        --combined) combined=0 ; shift ;;
+        --consolidated) consolidated=0 ; shift ;;
         --local-dns) localdns=0 ; shift ;;
         --provider=*) provider=${2/--provider=/''} ; shift ;;
-        -c) combined=0 ; shift ;;
+        -c) consolidated=0 ; shift ;;
         -l) localdns=0 ; shift ;;
         -p*) provider=${3} ; shift ; shift ;;
         *) test -n "${2}" && test -z "${provider}" && provider=${2} ; shift ;;
@@ -175,7 +174,7 @@ case "${1}" in
     case "${provider}" in
       amazon) echo 'Provider not supported' ; exit 1 ;;
       digitalocean)
-        case "${combined}" in
+        case "${consolidated}" in
           0)
             pprint heading 'Checking for existing cloud'
             echo "${appunfurl}" | xargs -I{} bash -c '! droplet-exists {}'
@@ -184,7 +183,7 @@ case "${1}" in
               *) pprint good 'done' ;;
             esac
 
-            # Loop through all combined servers, deterine their IP, and then destroy the mapping
+            # Loop through all consolidated servers, deterine their IP, and then destroy the mapping
             # in /etc/hosts.
             pprint heading 'Destroying DNS'
             count=$(inventory-role-count "${app}")
@@ -206,7 +205,7 @@ case "${1}" in
               *) pprint bad 'fail' ; exit 1 ;;
             esac
           ;;
-          *) echo 'Vertical combination type not supported' ; exit 1 ;;
+          *) echo 'Unconsolidated servers not supported' ; exit 1 ;;
         esac
       ;;
     esac
@@ -280,9 +279,9 @@ case "${1}" in
     bin=${a[${#a[@]}-1]}
 
     echo 'Usage:'
-    echo "  ${bin} create <provider> [--combined|-c] [--local-dns|-l]"
+    echo "  ${bin} create <provider> [--consolidated|-c] [--local-dns|-l]"
     echo "  ${bin} init <blueprint> [--password|-p <password>] [--token|-t <token>]]"
-    echo "  ${bin} destroy <provider> [--combined|-c] [--local-dns|-l]"
+    echo "  ${bin} destroy <provider> [--consolidated|-c] [--local-dns|-l]"
     echo
     echo "Setup Commands:"
     echo "  init    Initialize to use a specific blueprint"

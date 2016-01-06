@@ -4,4 +4,4 @@
 
 * Support for DigitalOcean as a provider
 * Support for local DNS
-* Support for full vertically-combined clouds
+* Support for server consolidated clouds
