@@ -31,16 +31,16 @@ install: | stub
 ifeq (${uname}, Darwin)
 	@$(eval _bindir := $(shell greadlink -f ${bindir}))
 	@$(eval _libdir := $(shell greadlink -f ${libdir}))
-	@sed -i '' "s|bindir=|bindir=${_bindir}|g" ${bindir}/hykes-provision
-	@sed -i '' "s|libdir=|libdir=${_libdir}|g" ${bindir}/hykes-provision
-	@sed -i '' "s|ref=|ref=${ref}|g" ${bindir}/hykes-provision
+	@sed -i '' "s|bindir=|bindir=${_bindir}|g" ${bindir}/hykes-provisioner
+	@sed -i '' "s|libdir=|libdir=${_libdir}|g" ${bindir}/hykes-provisioner
+	@sed -i '' "s|ref=|ref=${ref}|g" ${bindir}/hykes-provisioner
 else ifeq (${uname}, Linux)
 	@$(eval _bindir := $(shell readlink -f ${bindir}))
 	@$(eval _libdir := $(shell readlink -f ${libdir}))
-	@sed -i "s|sed -i ''|sed -i|g" ${bindir}/hykes-provision
-	@sed -i "s|bindir=|bindir=${_bindir}|g" ${bindir}/hykes-provision
-	@sed -i "s|libdir=|libdir=${_libdir}|g" ${bindir}/hykes-provision
-	@sed -i "s|ref=|ref=${ref}|g" ${bindir}/hykes-provision
+	@sed -i "s|sed -i ''|sed -i|g" ${bindir}/hykes-provisioner
+	@sed -i "s|bindir=|bindir=${_bindir}|g" ${bindir}/hykes-provisioner
+	@sed -i "s|libdir=|libdir=${_libdir}|g" ${bindir}/hykes-provisioner
+	@sed -i "s|ref=|ref=${ref}|g" ${bindir}/hykes-provisioner
 endif
 
 stub:
@@ -50,7 +50,7 @@ stub:
 test: | test-cli
 
 test-cli: | install
-	@test/hykes-provision
+	@test/hykes-provisioner
 
 uninstall:
 	@rm -rf ${bindir}

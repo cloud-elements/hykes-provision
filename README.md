@@ -1,11 +1,11 @@
-# hykes-provision <sub><sup>| Automagically provision Hykes clouds</sup></sub>
-[![version](http://img.shields.io/badge/version-v0.0.0-blue.svg)](https://github.com/cloud-elements/hykes-provision/blob/master/CHANGELOG.md)
+# hykes-provisioner <sub><sup>| Automagically provision Cloud Elements clouds</sup></sub>
+[![version](http://img.shields.io/badge/version-v0.0.0-blue.svg)](CHANGELOG.md)
 [![versioning](http://img.shields.io/badge/versioning-semver-blue.svg)](http://semver.org/)
 [![branching](http://img.shields.io/badge/branching-github%20flow-blue.svg)](https://guides.github.com/introduction/flow/)
-[![license](http://img.shields.io/badge/license-apache-blue.svg)](https://github.com/cloud-elements/hykes-provision/blob/master/LICENSE.md)
+[![license](http://img.shields.io/badge/license-apache-blue.svg)](LICENSE.md)
 [![slack](http://img.shields.io/badge/slack-join-blue.svg)](https://ce-success.herokuapp.com/)
 [![docs](http://img.shields.io/badge/docs-read-blue.svg)](https://developers.cloud-elements.com/docs/on-prem/)
-[![circleci](https://circleci.com/gh/cloud-elements/hykes-provision.svg?style=shield&circle-token=2d35151de096fc8262c228fdd111b85b2bc0f5f9)](https://circleci.com/gh/cloud-elements/hykes-provision)
+[![circleci](https://circleci.com/gh/cloud-elements/hykes-provisioner.svg?style=shield&circle-token=2d35151de096fc8262c228fdd111b85b2bc0f5f9)](https://circleci.com/gh/cloud-elements/hykes-provisioner)
 
 ## Installation
 
@@ -15,19 +15,19 @@
 
 ```bash
 $ brew tap cloud-elements/ops git@github.com:cloud-elements/homebrew-ops.git
-$ brew install hykes-provision
+$ brew install hykes-provisioner
 ```
 
 ### Via `git clone`:
 
-> __PROTIP:__ Since this route does not place `hykes-provision` on your `PATH`, you must reference
-it relatively (e.g. `build/bin/hykes-provision`).
+> __PROTIP:__ Since this route does not place `hykes-provisioner` on your `PATH`, you must reference
+it relatively (e.g. `build/bin/hykes-provisioner`).
 
 #### OS X:
 
 ```bash
-$ git clone git@github.com:cloud-elements/hykes-provision.git
-$ cd hykes-provision
+$ git clone git@github.com:cloud-elements/hykes-provisioner.git
+$ cd hykes-provisioner
 $ git checkout tags/v0.0.0
 $ make dependencies && make install
 ```
@@ -35,8 +35,8 @@ $ make dependencies && make install
 #### Debian/Ubuntu:
 
 ```bash
-$ git clone git@github.com:cloud-elements/hykes-provision.git
-$ cd hykes-provision
+$ git clone git@github.com:cloud-elements/hykes-provisioner.git
+$ cd hykes-provisioner
 $ git checkout tags/v0.0.0
 $ sudo make dependencies && make install
 ```
@@ -44,12 +44,12 @@ $ sudo make dependencies && make install
 ## Usage
 
 ```bash
-$ hykes-provision --help
+$ hykes-provisioner --help
 Usage:
-  hykes-provision create <provider> [--consolidated|-c] [--local-dns|-l]
+  hykes-provisioner create <provider> [--consolidated|-c] [--local-dns|-l]
     [--specs|-s <tiny|small|medium|large|huge>]
-  hykes-provision init <blueprint> [--password|-p <password>] [--token|-t <token>]]
-  hykes-provision destroy <provider> [--consolidated|-c] [--local-dns|-l]
+  hykes-provisioner init <blueprint> [--password|-p <password>] [--token|-t <token>]]
+  hykes-provisioner destroy <provider> [--consolidated|-c] [--local-dns|-l]
 
 Setup Commands:
   init    Initialize to use a specific blueprint
