@@ -46,17 +46,17 @@ $ sudo make dependencies && make install
 ```bash
 $ hykes-provisioner --help
 Usage:
-  hykes-provisioner create <provider> [--consolidated|-c] [--local-dns|-l]
-    [--specs|-s <tiny|small|medium|large|huge>]
   hykes-provisioner init <blueprint> [--password|-p <password>] [--token|-t <token>]
-  hykes-provisioner destroy <provider> [--consolidated|-c] [--local-dns|-l]
+  hykes-provisioner provision|create <provider> [--consolidated|-c] [--local-dns|-l]
+    [--specs|-s <tiny|small|medium|large|huge>]
+  hykes-provisioner unprovision|destroy <provider> [--consolidated|-c] [--local-dns|-l]
 
 Setup Commands:
   init    Initialize to use a specific blueprint
 
 Core Commands:
-  create     Create cloud
-  destroy    Destroy cloud
+  provision|create       Provision cloud
+  unprovision|destroy    Unprovision cloud
 ```
 
 > __PROTIP:__ Ensure Tugboat and/or the AWS CLI are initialized themselves before issuing any core

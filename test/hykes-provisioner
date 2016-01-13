@@ -16,10 +16,11 @@
     skip "Environment variables not defined"
   fi
 
-  build/bin/hykes-provisioner init \
+  run build/bin/hykes-provisioner init \
     --blueprint=blueprint \
     --password=password \
     --token=token
+  [ $status -eq 1 ]
 }
 
 @test "--help should output usage" {
