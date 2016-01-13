@@ -83,7 +83,70 @@ function specs-to-droplet-size() {
 }
 
 case "${1}" in
-  create)
+  init)
+    while (( "$#" )); do
+      case "${2}" in
+        --blueprint=*) blueprint=${2/--blueprint=/''} ; shift ;;
+        --password=*) password=${2/--password=/''} ; shift ;;
+        --token=*) token=${2/--token=/''} ; shift ;;
+        -b*) blueprint=${3} ; shift ; shift ;;
+        -p*) password=${3} ; shift ; shift ;;
+        -t*) token=${3} ; shift ; shift ;;
+        *) test -n "${2}" && blueprint=${2} ; shift ;;
+      esac
+    done
+
+    test -z "${blueprint}" && read -p 'Enter blueprint (e.g. ce_ops): ' blueprint
+    test -z "${password}" && read -p 'Enter password: ' -s password && echo
+    test -z "${token}" && read -p 'Enter GitHub access token: ' -s token && echo
+
+    pprint heading 'Downloading'
+    rm -f "${libdir}/.hykes-blueprints.tar.gz" && \
+    curl --fail --silent --location --retry 4 --retry-delay 8 \
+      --header "Authorization: token ${token}" \
+      --header "Accept: application/vnd.github.v3.raw" \
+      --output "${libdir}/.hykes-blueprints.tar.gz" \
+      "https://api.github.com/repos/cloud-elements/hykes-blueprints/tarball/${ref}"
+    case "$?" in
+      0) pprint good 'done' ;;
+      *) pprint bad 'fail' ; exit 1 ;;
+    esac
+
+    pprint heading 'Decompressing'
+    rm -rf "${libdir}/.hykes-blueprints" && \
+    mkdir "${libdir}/.hykes-blueprints" && \
+    tar -x -f "${libdir}/.hykes-blueprints.tar.gz" -C "${libdir}/.hykes-blueprints" --strip 1
+    case "$?" in
+      0) pprint good 'done' ;;
+      *) pprint bad 'fail' ; exit 1 ;;
+    esac
+
+    pprint heading 'Building'
+    (cd "${libdir}/.hykes-blueprints" ; make install)
+    case "$?" in
+      0) pprint good 'done' ;;
+      *) pprint bad 'fail' ; exit 1 ;;
+    esac
+
+    pprint heading 'Decrypting'
+    (cd "${libdir}/.hykes-blueprints" ; build/bin/hykes-blueprints decrypt "${blueprint}" --password="${password}" 2>&1 > /dev/null)
+    case "$?" in
+      0) pprint good 'done' ;;
+      *) pprint bad 'fail' ; exit 1 ;;
+    esac
+
+    pprint heading 'Moving'
+    rm -f "${libdir}/hykes.ini" && \
+    mv "${libdir}/.hykes-blueprints/build/lib/${blueprint}/hykes.ini" "${libdir}/hykes.ini" && \
+    rm -f "${libdir}/hykes.yml" && \
+    mv "${libdir}/.hykes-blueprints/build/lib/${blueprint}/hykes.yml" "${libdir}/hykes.yml"
+    case "$?" in
+      0) pprint good 'done' ;;
+      *) pprint bad 'fail' ; exit 1 ;;
+    esac
+  ;;
+
+  provision)
     specs='medium'
 
     while (( "$#" )); do
@@ -140,9 +203,9 @@ case "${1}" in
             esac
 
             # Loop through all consolidated servers, deterine their IP, and then create mapping in
-            # /etc/hosts. The primary loadbalance role, which exists on the first consolidated server,
-            # needs to have "extra" records so that the core endpoints are reachable upon the cloud
-            # being successfully built (e.g. api.example.com, console.example.com)
+            # /etc/hosts. The primary loadbalance role, which exists on the first consolidated
+            # server, needs to have "extra" records so that the core endpoints are reachable upon
+            # the cloud being successfully built (e.g. api.example.com, console.example.com)
             pprint heading 'Creating DNS'
             fqdn=$(grep 'base_fqdn:' ${libdir}/hykes.yml | sed 's/base_fqdn://' | tr ' ' '\0')
             count=$(inventory-role-count "${app}")
@@ -167,7 +230,7 @@ case "${1}" in
     esac
   ;;
 
-  destroy)
+  unprovision)
     while (( "$#" )); do
       case "${2}" in
         --consolidated) consolidated=0 ; shift ;;
@@ -235,85 +298,22 @@ case "${1}" in
     esac
   ;;
 
-  init)
-    while (( "$#" )); do
-      case "${2}" in
-        --blueprint=*) blueprint=${2/--blueprint=/''} ; shift ;;
-        --password=*) password=${2/--password=/''} ; shift ;;
-        --token=*) token=${2/--token=/''} ; shift ;;
-        -b*) blueprint=${3} ; shift ; shift ;;
-        -p*) password=${3} ; shift ; shift ;;
-        -t*) token=${3} ; shift ; shift ;;
-        *) test -n "${2}" && blueprint=${2} ; shift ;;
-      esac
-    done
-
-    test -z "${blueprint}" && read -p 'Enter blueprint (e.g. ce_ops): ' blueprint
-    test -z "${password}" && read -p 'Enter password: ' -s password && echo
-    test -z "${token}" && read -p 'Enter GitHub access token: ' -s token && echo
-
-    pprint heading 'Downloading'
-    rm -f "${libdir}/.hykes-blueprints.tar.gz" && \
-    curl --fail --silent --location --retry 4 --retry-delay 8 \
-      --header "Authorization: token ${token}" \
-      --header "Accept: application/vnd.github.v3.raw" \
-      --output "${libdir}/.hykes-blueprints.tar.gz" \
-      "https://api.github.com/repos/cloud-elements/hykes-blueprints/tarball/${ref}"
-    case "$?" in
-      0) pprint good 'done' ;;
-      *) pprint bad 'fail' ; exit 1 ;;
-    esac
-
-    pprint heading 'Decompressing'
-    rm -rf "${libdir}/.hykes-blueprints" && \
-    mkdir "${libdir}/.hykes-blueprints" && \
-    tar -x -f "${libdir}/.hykes-blueprints.tar.gz" -C "${libdir}/.hykes-blueprints" --strip 1
-    case "$?" in
-      0) pprint good 'done' ;;
-      *) pprint bad 'fail' ; exit 1 ;;
-    esac
-
-    pprint heading 'Building'
-    (cd "${libdir}/.hykes-blueprints" ; make install)
-    case "$?" in
-      0) pprint good 'done' ;;
-      *) pprint bad 'fail' ; exit 1 ;;
-    esac
-
-    pprint heading 'Decrypting'
-    (cd "${libdir}/.hykes-blueprints" ; build/bin/hykes-blueprints decrypt "${blueprint}" --password="${password}" 2>&1 > /dev/null)
-    case "$?" in
-      0) pprint good 'done' ;;
-      *) pprint bad 'fail' ; exit 1 ;;
-    esac
-
-    pprint heading 'Moving'
-    rm -f "${libdir}/hykes.ini" && \
-    mv "${libdir}/.hykes-blueprints/build/lib/${blueprint}/hykes.ini" "${libdir}/hykes.ini" && \
-    rm -f "${libdir}/hykes.yml" && \
-    mv "${libdir}/.hykes-blueprints/build/lib/${blueprint}/hykes.yml" "${libdir}/hykes.yml"
-    case "$?" in
-      0) pprint good 'done' ;;
-      *) pprint bad 'fail' ; exit 1 ;;
-    esac
-  ;;
-
   --help|-h)
     a=(${0//\// })
     bin=${a[${#a[@]}-1]}
 
     echo 'Usage:'
-    echo "  ${bin} create <provider> [--consolidated|-c] [--local-dns|-l]"
+    echo "  ${bin} init <blueprint> [--password|-p <password>] [--token|-t <token>]"
+    echo "  ${bin} provision|create <provider> [--consolidated|-c] [--local-dns|-l]"
     echo "    [--specs|-s <tiny|small|medium|large|huge>]"
-    echo "  ${bin} init <blueprint> [--password|-p <password>] [--token|-t <token>]]"
-    echo "  ${bin} destroy <provider> [--consolidated|-c] [--local-dns|-l]"
+    echo "  ${bin} unprovision|destroy <provider> [--consolidated|-c] [--local-dns|-l]"
     echo
     echo "Setup Commands:"
     echo "  init    Initialize to use a specific blueprint"
     echo
     echo "Core Commands:"
-    echo "  create     Create cloud"
-    echo "  destroy    Destroy cloud"
+    echo "  provision|create       Provision cloud"
+    echo "  unprovision|destroy    Unprovision cloud"
   ;;
 
   --version|-v) echo 'v0.0.0' ;;

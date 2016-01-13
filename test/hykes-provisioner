@@ -5,11 +5,10 @@
     skip "Environment variables not defined"
   fi
 
-  run build/bin/hykes-provisioner init \
+  build/bin/hykes-provisioner init \
     --blueprint=${HYKES_PROVISIONER_BLUEPRINT} \
     --password=${HYKES_PROVISIONER_PASSWORD} \
     --token=${HYKES_PROVISIONER_TOKEN}
-  [ $status -eq 0 ]
 }
 
 @test "init should fail predictably" {
