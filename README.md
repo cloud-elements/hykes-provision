@@ -48,7 +48,7 @@ $ hykes-provisioner --help
 Usage:
   hykes-provisioner create <provider> [--consolidated|-c] [--local-dns|-l]
     [--specs|-s <tiny|small|medium|large|huge>]
-  hykes-provisioner init <blueprint> [--password|-p <password>] [--token|-t <token>]]
+  hykes-provisioner init <blueprint> [--password|-p <password>] [--token|-t <token>]
   hykes-provisioner destroy <provider> [--consolidated|-c] [--local-dns|-l]
 
 Setup Commands:
