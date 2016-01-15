@@ -1,7 +1,10 @@
 #!/usr/bin/env bats
 
 @test "init should succeed predictably" {
-  if [ -z "${HYKES_PROVISIONER_BLUEPRINT}" ] || [ -z "${HYKES_PROVISIONER_PASSWORD}" ] || [ -z "${HYKES_PROVISIONER_TOKEN}" ]; then
+  if [ -z "${HYKES_PROVISIONER_BLUEPRINT}" ] || \
+     [ -z "${HYKES_PROVISIONER_PASSWORD}" ] || \
+     [ -z "${HYKES_PROVISIONER_TOKEN}" ]; then
+
     skip "Environment variables not defined"
   fi
 
@@ -12,7 +15,10 @@
 }
 
 @test "init should fail predictably" {
-  if [ -z "${HYKES_PROVISIONER_BLUEPRINT}" ] || [ -z "${HYKES_PROVISIONER_PASSWORD}" ] || [ -z "${HYKES_PROVISIONER_TOKEN}" ]; then
+  if [ -z "${HYKES_PROVISIONER_BLUEPRINT}" ] || \
+     [ -z "${HYKES_PROVISIONER_PASSWORD}" ] || \
+     [ -z "${HYKES_PROVISIONER_TOKEN}" ]; then
+
     skip "Environment variables not defined"
   fi
 
