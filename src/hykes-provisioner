@@ -275,12 +275,12 @@ case "${1}" in
     echo "    [--specs|-s <tiny|small|medium|large|huge>]"
     echo "  ${bin} unprovision <provider> [--consolidated|-c] [--local-dns|-l]"
     echo
-    echo "Setup Commands:"
-    echo "  init    Initialize to use a specific blueprint"
+    echo 'Setup Commands:'
+    echo '  init    Initialize to use a specific blueprint'
     echo
-    echo "Core Commands:"
-    echo "  provision      Provision cloud"
-    echo "  unprovision    Unprovision cloud"
+    echo 'Core Commands:'
+    echo '  provision      Provision cloud'
+    echo '  unprovision    Unprovision cloud'
   ;;
 
   --version|-v) echo 'v0.0.0' ;;
