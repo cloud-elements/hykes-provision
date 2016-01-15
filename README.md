@@ -14,7 +14,7 @@
 #### OS X:
 
 ```bash
-$ brew tap cloud-elements/ops git@github.com:cloud-elements/homebrew-ops.git
+$ brew tap cloud-elements/hykes git@github.com:cloud-elements/homebrew-hykes.git
 $ brew install hykes-provisioner
 ```
 
@@ -47,16 +47,16 @@ $ sudo make dependencies && make install
 $ hykes-provisioner --help
 Usage:
   hykes-provisioner init <blueprint> [--password|-p <password>] [--token|-t <token>]
-  hykes-provisioner provision|create <provider> [--consolidated|-c] [--local-dns|-l]
+  hykes-provisioner provision <provider> [--consolidated|-c] [--local-dns|-l]
     [--specs|-s <tiny|small|medium|large|huge>]
-  hykes-provisioner unprovision|destroy <provider> [--consolidated|-c] [--local-dns|-l]
+  hykes-provisioner unprovision <provider> [--consolidated|-c] [--local-dns|-l]
 
 Setup Commands:
   init    Initialize to use a specific blueprint
 
 Core Commands:
-  provision|create       Provision cloud
-  unprovision|destroy    Unprovision cloud
+  provision      Provision cloud
+  unprovision    Unprovision cloud
 ```
 
 > __PROTIP:__ Ensure Tugboat and/or the AWS CLI are initialized themselves before issuing any core
