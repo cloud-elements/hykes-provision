@@ -107,43 +107,28 @@ case "${1}" in
       --header "Accept: application/vnd.github.v3.raw" \
       --output "${libdir}/.hykes-blueprints.tar.gz" \
       "https://api.github.com/repos/cloud-elements/hykes-blueprints/tarball/${ref}"
-    case "$?" in
-      0) pprint good 'done' ;;
-      *) pprint bad 'fail' ; exit 1 ;;
-    esac
+    test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
 
     pprint heading 'Decompressing'
     rm -rf "${libdir}/.hykes-blueprints" && \
     mkdir "${libdir}/.hykes-blueprints" && \
     tar -x -f "${libdir}/.hykes-blueprints.tar.gz" -C "${libdir}/.hykes-blueprints" --strip 1
-    case "$?" in
-      0) pprint good 'done' ;;
-      *) pprint bad 'fail' ; exit 1 ;;
-    esac
+    test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
 
     pprint heading 'Building'
     (cd "${libdir}/.hykes-blueprints" ; make install)
-    case "$?" in
-      0) pprint good 'done' ;;
-      *) pprint bad 'fail' ; exit 1 ;;
-    esac
+    test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
 
     pprint heading 'Decrypting'
     (cd "${libdir}/.hykes-blueprints" ; build/bin/hykes-blueprints decrypt "${blueprint}" --password="${password}" 2>&1 > /dev/null)
-    case "$?" in
-      0) pprint good 'done' ;;
-      *) pprint bad 'fail' ; exit 1 ;;
-    esac
+    test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
 
     pprint heading 'Moving'
     rm -f "${libdir}/hykes.ini" && \
     mv "${libdir}/.hykes-blueprints/build/lib/${blueprint}/hykes.ini" "${libdir}/hykes.ini" && \
     rm -f "${libdir}/hykes.yml" && \
     mv "${libdir}/.hykes-blueprints/build/lib/${blueprint}/hykes.yml" "${libdir}/hykes.yml"
-    case "$?" in
-      0) pprint good 'done' ;;
-      *) pprint bad 'fail' ; exit 1 ;;
-    esac
+    test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
   ;;
 
   provision)
@@ -189,18 +174,12 @@ case "${1}" in
           0)
             pprint heading 'Checking for existing cloud'
             echo "${appunfurl}" | xargs -I{} bash -c '! droplet-exists {}'
-            case "$?" in
-              0) pprint good 'done' ;;
-              *) pprint bad 'fail (existing cloud found)' ; exit 1 ;;
-            esac
+            test $? -ne 0 && { pprint bad 'failed (existing cloud found)' ; exit 1 ; }
 
             pprint heading 'Creating cloud'
             size=$(specs-to-droplet-size consolidated "${specs}")
             echo "${appunfurl}" | xargs -I{} bash -c "droplet-create {} ${size}"
-            case "$?" in
-              0) pprint good 'done' ;;
-              *) pprint bad 'fail' ; exit 1 ;;
-            esac
+            test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
 
             # Loop through all consolidated servers, deterine their IP, and then create mapping in
             # /etc/hosts. The primary loadbalance role, which exists on the first consolidated
@@ -219,10 +198,7 @@ case "${1}" in
 
               hosts-create "${ip}" "${rs}"
             done
-            case "$?" in
-              0) pprint good 'done' ;;
-              *) pprint bad 'fail' ; exit 1 ;;
-            esac
+            test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
           ;;
           *) echo 'Unconsolidated servers not supported' ; exit 1 ;;
         esac
@@ -265,10 +241,7 @@ case "${1}" in
           0)
             pprint heading 'Checking for existing cloud'
             echo "${appunfurl}" | xargs -I{} bash -c '! droplet-exists {}'
-            case "$?" in
-              0) pprint bad 'fail (existing cloud not found)' ; exit 1 ;;
-              *) pprint good 'done' ;;
-            esac
+            test $? -eq 0 && { pprint bad 'failed (existing cloud not found)' ; exit 1 ; }
 
             # Loop through all consolidated servers, deterine their IP, and then destroy the mapping
             # in /etc/hosts.
@@ -280,17 +253,11 @@ case "${1}" in
 
               hosts-destroy "${ip}"
             done
-            case "$?" in
-              0) pprint good 'done' ;;
-              *) pprint bad 'fail' ; exit 1 ;;
-            esac
+            test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
 
             pprint heading 'Destroying cloud'
             echo "${appunfurl}" | xargs -I{} bash -c 'droplet-destroy {}'
-            case "$?" in
-              0) pprint good 'done' ;;
-              *) pprint bad 'fail' ; exit 1 ;;
-            esac
+            test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
           ;;
           *) echo 'Unconsolidated servers not supported' ; exit 1 ;;
         esac
