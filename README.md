@@ -14,7 +14,7 @@
 #### OS X:
 
 ```bash
-$ brew tap cloud-elements/ops git@github.com:cloud-elements/homebrew-ops.git
+$ brew tap cloud-elements/hykes git@github.com:cloud-elements/homebrew-hykes.git
 $ brew install hykes-provisioner
 ```
 
