@@ -49,11 +49,16 @@ stub:
 
 test: | test-cli
 
-test-cli: | install
-	@test/hykes-provisioner
+test-cli: | test-cli-unit test-cli-integration
+
+test-cli-integration: | install
+	@bats test/integration/init.bats
+
+test-cli-unit: | install
+	@bats test/unit
 
 uninstall:
 	@rm -rf ${bindir}
 	@rm -rf ${libdir}
 
-.PHONY: apt brew clean dependencies gem install stub test test-cli uninstall
+.PHONY: apt brew clean dependencies gem install stub test test-cli test-cli-integration test-cli-unit uninstall
