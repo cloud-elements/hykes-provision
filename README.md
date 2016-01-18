@@ -16,6 +16,7 @@
 ```bash
 $ brew tap cloud-elements/hykes git@github.com:cloud-elements/homebrew-hykes.git
 $ brew install hykes-provisioner
+$ hykes-provisioner init
 ```
 
 ### Via `git clone`:
@@ -30,6 +31,7 @@ $ git clone git@github.com:cloud-elements/hykes-provisioner.git
 $ cd hykes-provisioner
 $ git checkout tags/v0.0.0
 $ make dependencies && make install
+$ build/bin/hykes-provisioner init
 ```
 
 #### Debian/Ubuntu:
@@ -39,6 +41,7 @@ $ git clone git@github.com:cloud-elements/hykes-provisioner.git
 $ cd hykes-provisioner
 $ git checkout tags/v0.0.0
 $ sudo make dependencies && make install
+$ build/bin/hykes-provisioner init
 ```
 
 ## Usage
