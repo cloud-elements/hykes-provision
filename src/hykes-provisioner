@@ -272,15 +272,20 @@ case "${1}" in
     echo 'Usage:'
     echo "  ${bin} init <blueprint> [--password|-p <password>] [--token|-t <token>]"
     echo "  ${bin} provision <provider> [--consolidated|-c] [--local-dns|-l]"
-    echo "    [--specs|-s <tiny|small|medium|large|huge>]"
+    echo '    [--specs|-s <tiny|small|medium|large|huge>]'
     echo "  ${bin} unprovision <provider> [--consolidated|-c] [--local-dns|-l]"
     echo
-    echo 'Setup Commands:'
+    echo 'Install Commands:'
     echo '  init    Initialize to use a specific blueprint'
     echo
     echo 'Core Commands:'
     echo '  provision      Provision cloud'
     echo '  unprovision    Unprovision cloud'
+    echo
+    echo 'More Information:'
+    echo '  project    https://github.com/cloud-elements/hykes-provisioner'
+    echo '  docs       https://ce-onprem.readthedocs.org'
+    echo '  chat       https://ce-success.herokuapp.com'
   ;;
 
   --version|-v) echo 'v0.0.0' ;;
