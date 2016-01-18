@@ -11,8 +11,6 @@
 
 ### Via `brew`:
 
-#### OS X:
-
 ```bash
 $ brew tap cloud-elements/hykes git@github.com:cloud-elements/homebrew-hykes.git
 $ brew install hykes-provisioner
@@ -20,11 +18,6 @@ $ hykes-provisioner init
 ```
 
 ### Via `git clone`:
-
-> __PROTIP:__ Since this route does not place `hykes-provisioner` on your `PATH`, you must reference
-it relatively (e.g. `build/bin/hykes-provisioner`).
-
-#### OS X:
 
 ```bash
 $ git clone git@github.com:cloud-elements/hykes-provisioner.git
@@ -34,15 +27,10 @@ $ make dependencies && make install
 $ build/bin/hykes-provisioner init
 ```
 
-#### Debian/Ubuntu:
-
-```bash
-$ git clone git@github.com:cloud-elements/hykes-provisioner.git
-$ cd hykes-provisioner
-$ git checkout tags/v0.0.0
-$ sudo make dependencies && make install
-$ build/bin/hykes-provisioner init
-```
+> __PROTIPS:__
+* `git clone` installation method does not place `hykes-provisioner` on your `PATH`, so you must
+reference it relatively (e.g. `build/bin/hykes-provisioner`).
+* `make dependencies` on Linux requires `sudo`.
 
 ## Usage
 
@@ -62,9 +50,9 @@ Core Commands:
   unprovision    Unprovision cloud
 
 More Information:
-  project    https://github.com/cloud-elements/hykes-provisioner
-  docs       https://ce-onprem.readthedocs.org
-  chat       https://ce-success.herokuapp.com
+  repo    https://github.com/cloud-elements/hykes-provisioner
+  docs    https://ce-onprem.readthedocs.org
+  chat    https://ce-success.herokuapp.com
 ```
 
 > __PROTIPS:__
