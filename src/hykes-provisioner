@@ -286,9 +286,9 @@ case "${1}" in
     echo '  unprovision    Unprovision cloud'
     echo
     echo 'More Information:'
-    echo '  repo    https://github.com/cloud-elements/hykes-provisioner'
-    echo '  docs    https://ce-onprem.readthedocs.org'
     echo '  chat    https://ce-success.herokuapp.com'
+    echo '  docs    https://ce-onprem.readthedocs.org'
+    echo '  repo    https://github.com/cloud-elements/hykes-provisioner'
   ;;
 
   --version|-v) echo 'v0.0.0' ;;

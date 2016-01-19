@@ -50,9 +50,9 @@ Core Commands:
   unprovision    Unprovision cloud
 
 More Information:
-  repo    https://github.com/cloud-elements/hykes-provisioner
-  docs    https://ce-onprem.readthedocs.org
   chat    https://ce-success.herokuapp.com
+  docs    https://ce-onprem.readthedocs.org
+  repo    https://github.com/cloud-elements/hykes-provisioner
 ```
 
 > __PROTIPS:__
