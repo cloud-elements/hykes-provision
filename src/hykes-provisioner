@@ -62,7 +62,7 @@ function pprint() {
   case "${1}" in
     bad) echo -e "${red}${2}${normal}" ;;
     good) echo -e "${green}${2}${normal}" ;;
-    heading) echo -e "${blue}==>${normal} ${white}${bold}${2}${normal}" ;;
+    head) echo -e "${blue}==>${normal} ${white}${bold}${2}${normal}" ;;
     *) echo "${2}" ;;
   esac
 }
@@ -100,7 +100,7 @@ case "${1}" in
     test -z "${password}" && read -p 'Enter password: ' -s password && echo
     test -z "${token}" && read -p 'Enter GitHub access token: ' -s token && echo
 
-    pprint heading 'Downloading'
+    pprint head 'Downloading'
     rm -f "${libdir}/.hykes-blueprints.tar.gz" && \
     curl --fail --silent --location --retry 4 --retry-delay 8 \
       --header "Authorization: token ${token}" \
@@ -109,21 +109,21 @@ case "${1}" in
       "https://api.github.com/repos/cloud-elements/hykes-blueprints/tarball/${ref}"
     test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
 
-    pprint heading 'Decompressing'
+    pprint head 'Decompressing'
     rm -rf "${libdir}/.hykes-blueprints" && \
     mkdir "${libdir}/.hykes-blueprints" && \
     tar -x -f "${libdir}/.hykes-blueprints.tar.gz" -C "${libdir}/.hykes-blueprints" --strip 1
     test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
 
-    pprint heading 'Building'
+    pprint head 'Building'
     (cd "${libdir}/.hykes-blueprints" ; make install)
     test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
 
-    pprint heading 'Decrypting'
+    pprint head 'Decrypting'
     (cd "${libdir}/.hykes-blueprints" ; build/bin/hykes-blueprints decrypt "${blueprint}" --password="${password}" 2>&1 > /dev/null)
     test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
 
-    pprint heading 'Moving'
+    pprint head 'Moving'
     rm -f "${libdir}/hykes.ini" && \
     mv "${libdir}/.hykes-blueprints/build/lib/${blueprint}/hykes.ini" "${libdir}/hykes.ini" && \
     rm -f "${libdir}/hykes.yml" && \
@@ -172,11 +172,11 @@ case "${1}" in
       digitalocean)
         case "${consolidated}" in
           0)
-            pprint heading 'Checking for existing cloud'
+            pprint head 'Checking for existing cloud'
             echo "${appunfurl}" | xargs -I{} bash -c '! droplet-exists {}'
             test $? -ne 0 && { pprint bad 'failed (existing cloud found)' ; exit 1 ; }
 
-            pprint heading 'Creating cloud'
+            pprint head 'Creating cloud'
             size=$(specs-to-droplet-size consolidated "${specs}")
             echo "${appunfurl}" | xargs -I{} bash -c "droplet-create {} ${size}"
             test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
@@ -185,7 +185,7 @@ case "${1}" in
             # /etc/hosts. The primary loadbalance role, which exists on the first consolidated
             # server, needs to have "extra" records so that the core endpoints are reachable upon
             # the cloud being successfully built (e.g. api.example.com, console.example.com)
-            pprint heading 'Creating DNS'
+            pprint head 'Creating DNS'
             fqdn=$(grep 'base_fqdn:' ${libdir}/hykes.yml | sed 's/base_fqdn://' | tr ' ' '\0')
             count=$(inventory-role-count "${app}")
             for ((i=0; i<=count-1; i++)); do
@@ -200,7 +200,7 @@ case "${1}" in
             done
             test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
 
-            pprint heading 'Waiting for cloud'
+            pprint head 'Waiting for cloud'
             sleep 60
           ;;
           *) echo 'Unconsolidated servers not supported' ; exit 1 ;;
@@ -242,13 +242,13 @@ case "${1}" in
       digitalocean)
         case "${consolidated}" in
           0)
-            pprint heading 'Checking for existing cloud'
+            pprint head 'Checking for existing cloud'
             echo "${appunfurl}" | xargs -I{} bash -c '! droplet-exists {}'
             test $? -eq 0 && { pprint bad 'failed (existing cloud not found)' ; exit 1 ; }
 
             # Loop through all consolidated servers, deterine their IP, and then destroy the mapping
             # in /etc/hosts.
-            pprint heading 'Destroying DNS'
+            pprint head 'Destroying DNS'
             count=$(inventory-role-count "${app}")
             for ((i=0; i<=count-1; i++)); do
               a=$(echo "${appunfurl}" | sed -n "$(( ${i} + 1 ))p")
@@ -258,7 +258,7 @@ case "${1}" in
             done
             test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
 
-            pprint heading 'Destroying cloud'
+            pprint head 'Destroying cloud'
             echo "${appunfurl}" | xargs -I{} bash -c 'droplet-destroy {}'
             test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
           ;;
