@@ -199,6 +199,9 @@ case "${1}" in
               hosts-create "${ip}" "${rs}"
             done
             test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
+
+            pprint heading 'Waiting for cloud'
+            sleep 60
           ;;
           *) echo 'Unconsolidated servers not supported' ; exit 1 ;;
         esac
