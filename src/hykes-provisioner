@@ -96,7 +96,7 @@ case "${1}" in
       esac
     done
 
-    test -z "${blueprint}" && read -p 'Enter blueprint (e.g. ce_ops): ' blueprint
+    test -z "${blueprint}" && read -p 'Enter blueprint (e.g. dev.ops.cloud-elements.com): ' blueprint
     test -z "${password}" && read -p 'Enter password: ' -s password && echo
     test -z "${token}" && read -p 'Enter GitHub access token: ' -s token && echo
 
