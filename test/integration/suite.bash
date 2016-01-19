@@ -5,6 +5,6 @@ function setup() {
      [ -z "${HYKES_PROVISIONER_PASSWORD}" ] || \
      [ -z "${HYKES_PROVISIONER_TOKEN}" ]; then
 
-    skip "Environment variables should be defined"
+    skip 'Environment variables should be defined'
   fi
 }
