@@ -193,7 +193,7 @@ case "${1}" in
               ip=$(droplet-ip "${a}")
               rs=$(echo "${invunfurl}" | grep "${i}." | tr '\n' ' ')
               if [ ${i} -eq 0 ]; then
-                rs="${rs} ${fqdn} api.${fqdn} console.${fqdn} logs.${fqdn}"
+                rs="${rs}${fqdn} api.${fqdn} console.${fqdn} logs.${fqdn}"
               fi
 
               hosts-create "${ip}" "${rs}"
