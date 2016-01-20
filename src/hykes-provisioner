@@ -193,14 +193,14 @@ case "${1}" in
               ip=$(droplet-ip "${a}")
               rs=$(echo "${invunfurl}" | grep "${i}." | tr '\n' ' ')
               if [ ${i} -eq 0 ]; then
-                rs="${rs} ${fqdn} api.${fqdn} console.${fqdn} logs.${fqdn}"
+                rs="${rs}${fqdn} api.${fqdn} console.${fqdn} logs.${fqdn}"
               fi
 
               hosts-create "${ip}" "${rs}"
             done
             test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
 
-            pprint head 'Waiting for cloud'
+            pprint head 'Awaiting cloud'
             sleep 60
           ;;
           *) echo 'Unconsolidated servers not supported' ; exit 1 ;;
