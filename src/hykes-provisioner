@@ -200,7 +200,7 @@ case "${1}" in
             done
             test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
 
-            pprint head 'Waiting for cloud'
+            pprint head 'Awaiting cloud'
             sleep 60
           ;;
           *) echo 'Unconsolidated servers not supported' ; exit 1 ;;
