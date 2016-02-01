@@ -1,299 +1,321 @@
 #!/usr/bin/env bash
 
 bindir=
+etcdir=
 libdir=
-ref=
+cmd="${1}" ; shift
 
-function droplet-create() {
-  tugboat create "${1}" --size="${2}" && \
-  sleep 60 && { tugboat wait "${1}" --state=active || exit 0 ; }
-}
-
-function droplet-destroy() {
-  yes | tugboat destroy "${1}"
-}
-
-function droplet-exists() {
-  tugboat info "${1}" 2>&1 > /dev/null
-}
-
-function droplet-ip() {
-  echo "$(tugboat info -n "${1}" --attribute=ip4 --porcelain)"
-}
-
-function hosts-create() {
-  echo "${1} ${2}" | sudo tee -a /etc/hosts
-}
-
-function hosts-destroy() {
-  sudo sed -i '' "/^${1}/d" /etc/hosts
-}
-
-function inventory-ls() {
-  tr ' ' '\n' < "${libdir}/hykes.ini" | egrep --color=never '^.+\[[0-9\:]+\]\.'
-}
-
-function inventory-role-count() {
-  local upper=$(inventory-role-slice "${1}" | tail -c 3 | head -c 1)
-  echo "$(( upper + 1 ))"
-}
-
-function inventory-role-slice() {
-  echo "$(echo "${1}" | egrep --color=never -o '\[[0-9\:]+\]')"
-}
-
-function inventory-role-unfurl() {
-  local slice=$(inventory-role-slice ${1})
-  local count=$(inventory-role-count ${1})
-
-  for ((i=0; i<=count-1; i++)); do
-    echo ${1/"$slice"/"$i"}
-  done
-}
-
+## Global utility functions #######################################################################
 function pprint() {
   local blue='\033[1;34m'
-  local bold='\033[1m'
-  local green='\033[0;32m'
-  local red='\033[0;31m'
+  local green='\033[1;32m'
+  local red='\033[1;31m'
   local normal='\033[0m'
-  local white='\033[0;37m'
+  local white='\033[1;37m'
 
-  case "${1}" in
-    bad) echo -e "${red}${2}${normal}" ;;
-    good) echo -e "${green}${2}${normal}" ;;
-    head) echo -e "${blue}==>${normal} ${white}${bold}${2}${normal}" ;;
-    *) echo "${2}" ;;
-  esac
+  while (( "$#" )); do
+    case "${1}" in
+      -n) local n='-n' ; shift ;;
+      -q) local q='-q' ; shift ;;
+      *)
+        test -n "${1}" && test -n "${adj}" && local msg=${1}
+        test -n "${1}" && test -z "${adj}" && local adj=${1}
+        shift
+      ;;
+    esac
+  done
+
+  if [ -z "${q}" ]; then
+    case "${adj}" in
+      bad) echo -e ${n} "${red}${msg}${normal}" ;;
+      good) echo -e ${n} "${green}${msg}${normal}" ;;
+      head) echo -e ${n} "${blue}==>${normal} ${white}${msg}${normal}" ;;
+      subhead) echo -e ${n} "${green}==>${normal} ${white}${msg}${normal}" ;;
+      *) echo ${n} "${msg}" ;;
+    esac
+  fi
 }
 
-function specs-to-droplet-size() {
+function read-config-path() {
+  echo $(test -f "${etcdir}/hykes-provisioner" && sed -n '1p' < "${etcdir}/hykes-provisioner")
+}
+
+function write-config-path() {
+  echo "${1}" > "${etcdir}/hykes-provisioner"
+}
+
+## Argument and option parsing ####################################################################
+while (( "$#" )); do
+  case "${1}" in
+    --cloud-provider=*) cloud=${1/--cloud-provider=/''} ; shift ;;
+    --consolidated) consolidated=0 ; shift ;;
+    --dns-provider=*) dns=${1/--dns-provider=/''} ; shift ;;
+    --path=*) path=${1/--path=/''} ; shift ;;
+    --quiet) quiet='-q' ; shift ;;
+    --specs=*) specs=${1/--specs=/''} ; shift ;;
+    -C*) cloud=${2} ; shift ; shift ;;
+    -D*) dns=${2} ; shift ; shift ;;
+    -P*) path=${2} ; shift ; shift ;;
+    -c) consolidated=0 ; shift ;;
+    -q) quiet='-q' ; shift ;;
+    -s*) specs=${2} ; shift ; shift ;;
+    *)
+      case "${cmd}" in
+        init) test -n "${1}" && test -z "${path}" && path=${1} ;;
+      esac
+      case "${cmd}" in
+        provision|unprovision)
+          test -n "${1}" && test -n "${cloud}" && dns=${1}
+          test -n "${1}" && test -z "${cloud}" && cloud=${1}
+        ;;
+      esac
+      shift
+    ;;
+  esac
+done
+
+## Argument and option prompting ##################################################################
+case "${cmd}" in
+  init) test -z "${path}" && read -e -p 'Enter path: ' path ;;
+esac
+case "${cmd}" in
+  provision|unprovision)
+    test -z "${cloud}" && read -e -p 'Enter cloud provider (e.g. do, aws): ' cloud
+    test -z "${dns}" && read -e -p 'Enter DNS provider (e.g. do, aws, hosts): ' dns
+  ;;
+esac
+
+## Argument and option defaults ###################################################################
+test -z "${path}" && path=$(read-config-path)
+test -z "${specs}" && specs='medium'
+
+## Command utility functions ######################################################################
+function list-inventory-servers() {
+  "${libdir}/hykes-blueprinter/build/bin/hykes-blueprinter" init "${path}" --quiet && \
+  echo "$("${libdir}/hykes-blueprinter/build/bin/hykes-blueprinter" list-servers "${1}" --quiet)"
+}
+export -f list-inventory-servers
+
+function lookup-inventory-fqdn() {
+  local h=$(list-inventory-servers | head -n 1)
+  echo "${h/app0./}"
+}
+export -f lookup-inventory-fqdn
+
+# Cloud providers:
+function await-do-server() {
+  case "${2}" in
+    active|inactive) tugboat wait "${1}" --state="${2}" ;;
+    *)
+      tugboat info "${1}" > /dev/null 2>&1
+      case "$?" in
+        0) await-do-server "${1}" "${2}";;
+        *) return 0 ;;
+      esac
+    ;;
+  esac
+}
+export -f await-do-server
+
+function create-do-server() {
+  tugboat create "${1}" --size="${2}"
+}
+export -f create-do-server
+
+function destroy-do-server() {
+  yes | tugboat destroy "${1}"
+}
+export -f destroy-do-server
+
+function exists-do-server() {
+  tugboat info "${1}" > /dev/null 2>&1
+}
+export -f exists-do-server
+
+function lookup-do-server-ip() {
+  echo "$(tugboat info -n "${1}" --attribute=ip4 --porcelain)"
+}
+export -f lookup-do-server-ip
+
+function size-do-server() {
   case "${1}" in
     consolidated)
-      local tiny='512mb'
+      local xsmall='512mb'
       local small='4gb'
       local medium='8gb'
       local large='16gb'
-      local huge='64gb'
+      local xlarge='64gb'
 
-      echo ${!2}
+      echo "${!2}"
     ;;
-    *) echo 'Role not supported' ; return 1 ;;
+    *) return 1 ;;
+  esac
+}
+export -f size-do-server
+
+function create-do-cloud() {
+  local size=$(size-do-server consolidated "${specs}")
+  echo "${1}" | xargs -I{} bash -c "create-do-server {} ${size}" && \
+  echo "${1}" | xargs -I{} bash -c "await-do-server {} active"
+}
+export -f create-do-cloud
+
+function destroy-do-cloud() {
+  echo "${1}" | xargs -I{} bash -c "destroy-do-server {}" && \
+  echo "${1}" | xargs -I{} bash -c "await-do-server {} destroyed"
+}
+export -f create-do-cloud
+
+function exists-do-cloud() {
+  echo "${1}" | xargs -I{} bash -c '! exists-do-server {}'
+  case "$?" in
+    0) return 1 ;;
+    *) return 0 ;;
+  esac
+}
+export -f exists-do-cloud
+
+# DNS providers:
+function create-hosts-map() {
+  echo "${1} ${2}" | sudo tee -a /etc/hosts
+}
+export -f create-hosts-map
+
+function destroy-hosts-map() {
+  sudo sed -i '' "/^${1}/d" /etc/hosts
+}
+export -f destroy-hosts-map
+
+function create-hosts-maps-consolidated() {
+  local fqdn=$(lookup-inventory-fqdn)
+  local all=$(list-inventory-servers)
+  local app=$(list-inventory-servers 'app')
+  local appcount=$(echo "${app}" | wc -l | tr ' ' '\0')
+
+  # Loop through all consolidated servers, determine their IP, and then create map in
+  # /etc/hosts. The primary loadbalance role, which exists on the first consolidated
+  # server, needs to have "extra" records so that the core endpoints are reachable upon
+  # the cloud being successfully built (e.g. api.example.com, console.example.com)
+  for ((i=0; i<=appcount-1; i++)); do
+    local a=$(echo "${app}" | sed -n "$(( ${i} + 1 ))p")
+    local ip=$(lookup-do-server-ip "${a}") # TODO: Remove coupling
+    local rs=$(echo "${all}" | grep "${i}." | tr '\n' ' ')
+    if [ ${i} -eq 0 ]; then
+      rs="${rs}${fqdn} api.${fqdn} console.${fqdn} logs.${fqdn}"
+    fi
+
+    create-hosts-map "${ip}" "${rs}"
+  done
+}
+export -f create-hosts-maps-consolidated
+
+function destroy-hosts-maps() {
+  local srvcount=$(echo "${1}" | wc -l | tr ' ' '\0')
+
+  for ((i=0; i<=srvcount-1; i++)); do
+    local a=$(echo "${1}" | sed -n "$(( ${i} + 1 ))p")
+    local ip=$(lookup-do-server-ip "${a}") # TODO: Remove coupling
+
+    destroy-hosts-map "${ip}"
+  done
+}
+export -f destroy-hosts-maps
+
+## Command functions ##############################################################################
+function help() {
+  a=(${0//\// })
+  bin=${a[${#a[@]}-1]}
+
+  echo 'Usage:'
+  echo "  ${bin} init <path> [--quiet|-q]"
+  echo "  ${bin} provision <cloud-provider> <dns-provider>"
+  echo '    [--consolidated|-c] [--specs|-s <xsmall|small|medium|large|xlarge>] [--quiet|-q]'
+  echo "  ${bin} unprovision <cloud-provider> <dns-provider>"
+  echo '    [--consolidated|-c] [--quiet|-q]'
+  echo
+  echo 'Configuration Commands:'
+  echo '  init    Initialize to work against the given blueprint'
+  echo
+  echo 'Core Commands:'
+  echo '  provision      Provision cloud'
+  echo '  unprovision    Unprovision cloud'
+  echo
+  echo 'More Information:'
+  echo '  chat    https://ce-success.herokuapp.com'
+  echo '  docs    https://ce-onprem.readthedocs.org'
+  echo '  repo    https://github.com/cloud-elements/hykes-provisioner'
+}
+
+function init() {
+  pprint head 'Initializing' ${quiet}
+  pprint subhead 'Configuring' ${quiet}
+  write-config-path $(greadlink -f "${path}")
+}
+
+function provision() {
+  pprint head 'Provisioning' ${quiet}
+
+  case "${cloud}" in
+    do)
+      case "${consolidated}" in
+        0)
+          local app=$(list-inventory-servers 'app')
+
+          pprint subhead 'Checking for existing cloud' ${quiet}
+          ! exists-do-cloud "${app}" || \
+            { pprint bad 'failed (cloud should not exist)' ${quiet} ; return 1; }
+
+          pprint subhead 'Creating cloud' ${quiet}
+          create-do-cloud "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
+
+          case "${dns}" in
+            hosts)
+              pprint subhead 'Creating DNS' ${quiet}
+              create-hosts-maps-consolidated || { pprint bad 'failed' ${quiet} ; return 1; }
+            ;;
+          esac
+        ;;
+      esac
+    ;;
   esac
 }
 
-case "${1}" in
-  init)
-    while (( "$#" )); do
-      case "${2}" in
-        --blueprint=*) blueprint=${2/--blueprint=/''} ; shift ;;
-        --password=*) password=${2/--password=/''} ; shift ;;
-        --token=*) token=${2/--token=/''} ; shift ;;
-        -b*) blueprint=${3} ; shift ; shift ;;
-        -p*) password=${3} ; shift ; shift ;;
-        -t*) token=${3} ; shift ; shift ;;
-        *) test -n "${2}" && blueprint=${2} ; shift ;;
-      esac
-    done
+function unprovision() {
+  pprint head 'Unprovisioning' ${quiet}
 
-    test -z "${blueprint}" && read -p 'Enter blueprint (e.g. dev.ops.cloud-elements.com): ' blueprint
-    test -z "${password}" && read -p 'Enter password: ' -s password && echo
-    test -z "${token}" && read -p 'Enter GitHub access token: ' -s token && echo
+  case "${cloud}" in
+    do)
+      case "${consolidated}" in
+        0)
+          local app=$(list-inventory-servers 'app')
 
-    pprint head 'Downloading'
-    rm -f "${libdir}/.hykes-blueprints.tar.gz" && \
-    curl --fail --silent --location --retry 4 --retry-delay 8 \
-      --header "Authorization: token ${token}" \
-      --header "Accept: application/vnd.github.v3.raw" \
-      --output "${libdir}/.hykes-blueprints.tar.gz" \
-      "https://api.github.com/repos/cloud-elements/hykes-blueprints/tarball/${ref}"
-    test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
+          pprint subhead 'Checking for existing cloud' ${quiet}
+          exists-do-cloud "${app}" || \
+            { pprint bad 'failed (cloud should exist)' ${quiet} ; return 1; }
 
-    pprint head 'Decompressing'
-    rm -rf "${libdir}/.hykes-blueprints" && \
-    mkdir "${libdir}/.hykes-blueprints" && \
-    tar -x -f "${libdir}/.hykes-blueprints.tar.gz" -C "${libdir}/.hykes-blueprints" --strip 1
-    test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
+          case "${dns}" in
+            hosts)
+              pprint subhead 'Destroying DNS' ${quiet}
+              destroy-hosts-maps "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
+            ;;
+          esac
 
-    pprint head 'Building'
-    (cd "${libdir}/.hykes-blueprints" ; make install)
-    test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
-
-    pprint head 'Decrypting'
-    (cd "${libdir}/.hykes-blueprints" ; build/bin/hykes-blueprints decrypt "${blueprint}" --password="${password}" 2>&1 > /dev/null)
-    test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
-
-    pprint head 'Moving'
-    rm -f "${libdir}/hykes.ini" && \
-    mv "${libdir}/.hykes-blueprints/build/lib/${blueprint}/hykes.ini" "${libdir}/hykes.ini" && \
-    rm -f "${libdir}/hykes.yml" && \
-    mv "${libdir}/.hykes-blueprints/build/lib/${blueprint}/hykes.yml" "${libdir}/hykes.yml"
-    test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
-  ;;
-
-  provision)
-    specs='medium'
-
-    while (( "$#" )); do
-      case "${2}" in
-        --consolidated) consolidated=0 ; shift ;;
-        --local-dns) localdns=0 ; shift ;;
-        --provider=*) provider=${2/--provider=/''} ; shift ;;
-        --specs=*) specs=${2/--specs=/''} ; shift ;;
-        -c) consolidated=0 ; shift ;;
-        -l) localdns=0 ; shift ;;
-        -p*) provider=${3} ; shift ; shift ;;
-        -s*) specs=${3} ; shift ; shift ;;
-        *)
-          test -n "${2}" && test -n "${provider}" && specs=${2}
-          test -n "${2}" && test -z "${provider}" && provider=${2}
-          shift
+          pprint subhead 'Destroying cloud' ${quiet}
+          destroy-do-cloud "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
         ;;
       esac
-    done
+    ;;
+  esac
+}
 
-    test -z "${provider}" && read -p 'Enter provider (e.g. amazon, digitalocean): ' provider
+function version() {
+  echo 'v0.0.0'
+}
 
-    # Export functions for xargs. Not done at a higher scope since subshells using /bin/sh, used
-    # in init, barf on the function names with dashes.
-    export -f droplet-exists
-    export -f droplet-create
-    export -f inventory-role-count
-    export -f inventory-role-slice
-    export -f inventory-role-unfurl
-
-    inv=$(inventory-ls)
-    invunfurl=$(echo "${inv}" | xargs -I{} bash -c '! inventory-role-unfurl {}')
-    app=$(echo "${inv}" | grep 'app')
-    appunfurl=$(echo "${invunfurl}" | grep 'app')
-
-    case "${provider}" in
-      amazon) echo 'Provider not supported' ; exit 1 ;;
-      digitalocean)
-        case "${consolidated}" in
-          0)
-            pprint head 'Checking for existing cloud'
-            echo "${appunfurl}" | xargs -I{} bash -c '! droplet-exists {}'
-            test $? -ne 0 && { pprint bad 'failed (existing cloud found)' ; exit 1 ; }
-
-            pprint head 'Creating cloud'
-            size=$(specs-to-droplet-size consolidated "${specs}")
-            echo "${appunfurl}" | xargs -I{} bash -c "droplet-create {} ${size}"
-            test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
-
-            # Loop through all consolidated servers, deterine their IP, and then create mapping in
-            # /etc/hosts. The primary loadbalance role, which exists on the first consolidated
-            # server, needs to have "extra" records so that the core endpoints are reachable upon
-            # the cloud being successfully built (e.g. api.example.com, console.example.com)
-            pprint head 'Creating DNS'
-            fqdn=$(grep 'base_fqdn:' ${libdir}/hykes.yml | sed 's/base_fqdn://' | tr ' ' '\0')
-            count=$(inventory-role-count "${app}")
-            for ((i=0; i<=count-1; i++)); do
-              a=$(echo "${appunfurl}" | sed -n "$(( ${i} + 1 ))p")
-              ip=$(droplet-ip "${a}")
-              rs=$(echo "${invunfurl}" | grep "${i}." | tr '\n' ' ')
-              if [ ${i} -eq 0 ]; then
-                rs="${rs}${fqdn} api.${fqdn} console.${fqdn} logs.${fqdn}"
-              fi
-
-              hosts-create "${ip}" "${rs}"
-            done
-            test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
-
-            pprint head 'Awaiting cloud'
-            sleep 60
-          ;;
-          *) echo 'Unconsolidated servers not supported' ; exit 1 ;;
-        esac
-      ;;
-    esac
-  ;;
-
-  unprovision)
-    while (( "$#" )); do
-      case "${2}" in
-        --consolidated) consolidated=0 ; shift ;;
-        --local-dns) localdns=0 ; shift ;;
-        --provider=*) provider=${2/--provider=/''} ; shift ;;
-        -c) consolidated=0 ; shift ;;
-        -l) localdns=0 ; shift ;;
-        -p*) provider=${3} ; shift ; shift ;;
-        *) test -n "${2}" && test -z "${provider}" && provider=${2} ; shift ;;
-      esac
-    done
-
-    test -z "${provider}" && read -p 'Enter provider (e.g. amazon, digitalocean): ' provider
-
-    # Export functions for xargs. Not done at a higher scope since subshells using /bin/sh, used
-    # in init, barf on the function names with dashes.
-    export -f droplet-exists
-    export -f droplet-destroy
-    export -f inventory-role-count
-    export -f inventory-role-slice
-    export -f inventory-role-unfurl
-
-    inv=$(inventory-ls)
-    invunfurl=$(echo "${inv}" | xargs -I{} bash -c '! inventory-role-unfurl {}')
-    app=$(echo "${inv}" | grep 'app')
-    appunfurl=$(echo "${invunfurl}" | grep 'app')
-
-    case "${provider}" in
-      amazon) echo 'Provider not supported' ; exit 1 ;;
-      digitalocean)
-        case "${consolidated}" in
-          0)
-            pprint head 'Checking for existing cloud'
-            echo "${appunfurl}" | xargs -I{} bash -c '! droplet-exists {}'
-            test $? -eq 0 && { pprint bad 'failed (existing cloud not found)' ; exit 1 ; }
-
-            # Loop through all consolidated servers, deterine their IP, and then destroy the mapping
-            # in /etc/hosts.
-            pprint head 'Destroying DNS'
-            count=$(inventory-role-count "${app}")
-            for ((i=0; i<=count-1; i++)); do
-              a=$(echo "${appunfurl}" | sed -n "$(( ${i} + 1 ))p")
-              ip=$(droplet-ip "${a}")
-
-              hosts-destroy "${ip}"
-            done
-            test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
-
-            pprint head 'Destroying cloud'
-            echo "${appunfurl}" | xargs -I{} bash -c 'droplet-destroy {}'
-            test $? -ne 0 && { pprint bad 'failed' ; exit 1 ; }
-          ;;
-          *) echo 'Unconsolidated servers not supported' ; exit 1 ;;
-        esac
-      ;;
-    esac
-  ;;
-
-  --help|-h)
-    a=(${0//\// })
-    bin=${a[${#a[@]}-1]}
-
-    echo 'Usage:'
-    echo "  ${bin} init <blueprint> [--password|-p <password>] [--token|-t <token>]"
-    echo "  ${bin} provision <provider> [--consolidated|-c] [--local-dns|-l]"
-    echo '    [--specs|-s <tiny|small|medium|large|huge>]'
-    echo "  ${bin} unprovision <provider> [--consolidated|-c] [--local-dns|-l]"
-    echo
-    echo 'Install Commands:'
-    echo '  init    Initialize to use a specific blueprint'
-    echo
-    echo 'Core Commands:'
-    echo '  provision      Provision cloud'
-    echo '  unprovision    Unprovision cloud'
-    echo
-    echo 'More Information:'
-    echo '  chat    https://ce-success.herokuapp.com'
-    echo '  docs    https://ce-onprem.readthedocs.org'
-    echo '  repo    https://github.com/cloud-elements/hykes-provisioner'
-  ;;
-
-  --version|-v) echo 'v0.0.0' ;;
-
-  *) ${0} --help ; exit 1 ;;
+## Command routing ################################################################################
+case "${cmd}" in
+  --help|-h) help ; exit 0 ;;
+  --version|-v) version ; exit 0 ;;
+  init|provision|unprovision) "${cmd}" ; exit "$?" ;;
+  *) help ; exit 1 ;;
 esac
-
-exit 0

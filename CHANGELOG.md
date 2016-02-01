@@ -2,6 +2,6 @@
 
 #### Highlights
 
-* Support for DigitalOcean as a provider
-* Support for local DNS
-* Support for server consolidated clouds
+* Support for DigitalOcean as a cloud provider
+* Support for hosts as a DNS provider
+* Support for consolidated clouds

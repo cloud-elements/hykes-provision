@@ -1,10 +1,9 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bats
 
 function setup() {
-  if [ -z "${HYKES_PROVISIONER_BLUEPRINT}" ] || \
-     [ -z "${HYKES_PROVISIONER_PASSWORD}" ] || \
-     [ -z "${HYKES_PROVISIONER_TOKEN}" ]; then
-
+  if [ -z "${HYKES_PROVISIONER_PATH}" ]; then
     skip 'Environment variables should be defined'
   fi
+
+  build/bin/hykes-provisioner init "${HYKES_PROVISIONER_PATH}"
 }

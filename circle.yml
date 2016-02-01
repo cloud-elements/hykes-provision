@@ -1,8 +1,14 @@
 dependencies:
   pre:
     - sudo make apt
+    - make hykes
     - make gem
+
+  post:
+    - build/lib/hykes-blueprinter/build/bin/hykes-blueprinter init "${HYKES_PROVISIONER_PATH}" "${HYKES_PROVISIONER_URL}"
+    - build/lib/hykes-blueprinter/build/bin/hykes-blueprinter decrypt --password="${HYKES_PROVISIONER_PASSWORD}"
 
 test:
   override:
-    - make test
+    - if [ -n "${TEST_UNIT}" ]; then make test-unit; fi;
+    - if [ -n "${TEST_INTEGRATION}" ]; then make test-integration; fi;

@@ -3,9 +3,22 @@
 [![versioning](http://img.shields.io/badge/versioning-semver-blue.svg)](http://semver.org/)
 [![branching](http://img.shields.io/badge/branching-github%20flow-blue.svg)](https://guides.github.com/introduction/flow/)
 [![license](http://img.shields.io/badge/license-apache-blue.svg)](LICENSE.md)
-[![slack](http://img.shields.io/badge/slack-join-blue.svg)](https://ce-success.herokuapp.com/)
+[![slack](http://img.shields.io/badge/slack-join-blue.svg)](https://ce-success.herokuapp.com)
 [![docs](http://img.shields.io/badge/docs-read-blue.svg)](https://ce-onprem.readthedocs.org)
 [![circleci](https://circleci.com/gh/cloud-elements/hykes-provisioner.svg?style=shield&circle-token=2d35151de096fc8262c228fdd111b85b2bc0f5f9)](https://circleci.com/gh/cloud-elements/hykes-provisioner)
+
+## Grokking
+![diagram](http://share.rockymadden.com/1I1A142Y1F3V/Image%202016-01-26%20at%201.06.49%20PM.png)
+
+## Provider Matrix
+
+| Type  | Name            | Slug    | Status
+| ----- | --------------- | ------- | ------------
+| Cloud | DigitalOcean    | `do`    | Full Support
+| Cloud | Amazon EC2      | `aws`   | In Development
+| DNS   | DigitalOcean    | `do`    | In Development
+| DNS   | Amazon Route 53 | `aws`   | In Development
+| DNS   | `/etc/hosts`    | `hosts` | Full Support
 
 ## Installation
 
@@ -23,7 +36,8 @@ $ hykes-provisioner init
 $ git clone git@github.com:cloud-elements/hykes-provisioner.git
 $ cd hykes-provisioner
 $ git checkout tags/v0.0.0
-$ make dependencies && make install
+$ make dependencies
+$ make install
 $ build/bin/hykes-provisioner init
 ```
 
@@ -37,13 +51,14 @@ reference it relatively (e.g. `build/bin/hykes-provisioner`).
 ```bash
 $ hykes-provisioner --help
 Usage:
-  hykes-provisioner init <blueprint> [--password|-p <password>] [--token|-t <token>]
-  hykes-provisioner provision <provider> [--consolidated|-c] [--local-dns|-l]
-    [--specs|-s <tiny|small|medium|large|huge>]
-  hykes-provisioner unprovision <provider> [--consolidated|-c] [--local-dns|-l]
+  hykes-provisioner init <path> [--quiet|-q]
+  hykes-provisioner provision <cloud-provider> <dns-provider>
+    [--consolidated|-c] [--specs|-s <xsmall|small|medium|large|xlarge>] [--quiet|-q]
+  hykes-provisioner unprovision <cloud-provider> <dns-provider>
+    [--consolidated|-c] [--quiet|-q]
 
-Install Commands:
-  init    Initialize to use a specific blueprint
+Configuration Commands:
+  init    Initialize to work against the given blueprint
 
 Core Commands:
   provision      Provision cloud
@@ -57,9 +72,12 @@ More Information:
 
 > __PROTIPS:__
 * Ensure Tugboat and/or the AWS CLI are initialized themselves before issuing any core commands.
-* `--specs` option defaults to `medium` when not explicitly provided.
+* `dns-provider` defaults to `hosts` when not explicitly provided.
+* `specs` defaults to `medium` when not explicitly provided.
 * All commands prompt for required arguments which were not provided via options or arguments. This
 allows for both traditional usage and prompt-based usage.
+* All arguments can be provided as options (e.g. `[--cloud-provider|-c <cloud-provider>]`,
+`[--dns-provider|-d <dns-provider>]`, `[--path|-P <path>]`).
 
 ## Changelog
 
