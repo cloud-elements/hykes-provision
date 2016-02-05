@@ -5,20 +5,25 @@
 [![license](http://img.shields.io/badge/license-apache-blue.svg)](LICENSE.md)
 [![slack](http://img.shields.io/badge/slack-join-blue.svg)](https://ce-success.herokuapp.com)
 [![docs](http://img.shields.io/badge/docs-read-blue.svg)](https://ce-onprem.readthedocs.org)
-[![circleci](https://circleci.com/gh/cloud-elements/hykes-provisioner.svg?style=shield&circle-token=2d35151de096fc8262c228fdd111b85b2bc0f5f9)](https://circleci.com/gh/cloud-elements/hykes-provisioner)
+[![circleci](https://circleci.com/gh/cloud-elements/hykes-provisioner.svg?style=shield)](https://circleci.com/gh/cloud-elements/hykes-provisioner)
 
 ## Grokking
 ![diagram](http://share.rockymadden.com/1I1A142Y1F3V/Image%202016-01-26%20at%201.06.49%20PM.png)
 
-## Provider Matrix
+## Cloud Provider Matrix
 
-| Type  | Name            | Slug    | Status
-| ----- | --------------- | ------- | ------------
-| Cloud | DigitalOcean    | `do`    | Full Support
-| Cloud | Amazon EC2      | `aws`   | In Development
-| DNS   | DigitalOcean    | `do`    | In Development
-| DNS   | Amazon Route 53 | `aws`   | In Development
-| DNS   | `/etc/hosts`    | `hosts` | Full Support
+| Name         | Slug    | Supported
+| ------------ | ------- | ---------
+| Amazon       | `aws`   | No
+| DigitalOcean | `do`    | __Yes__
+
+## DNS Provider Matrix
+
+| Name         | Slug    | Supported
+| ------------ | ------- | ---------
+| Amazon       | `aws`   | No
+| DigitalOcean | `do`    | No
+| `/etc/hosts` | `hosts` | __Yes__
 
 ## Installation
 
@@ -30,7 +35,7 @@ $ brew install hykes-provisioner
 $ hykes-provisioner init
 ```
 
-### Via PPA
+### Via PPA:
 
 In development
 
@@ -41,7 +46,7 @@ $ git clone git@github.com:cloud-elements/hykes-provisioner.git
 $ cd hykes-provisioner
 $ make
 $ make install
-$ build/bin/hykes-blueprinter init
+$ build/bin/hykes-provisioner init
 ```
 
 > __PROTIP:__
@@ -74,7 +79,7 @@ More Information:
 ```
 
 > __PROTIPS:__
-* Ensure Tugboat and/or the AWS CLI are initialized themselves before issuing any core commands.
+* Ensure Tugboat and/or the AWS CLI are initialized themselves before issuing any commands.
 * `dns-provider` defaults to `hosts` when not explicitly provided.
 * `specs` defaults to `medium` when not explicitly provided.
 * All commands prompt for required arguments which were not provided via options or arguments. This

@@ -79,8 +79,8 @@ case "${cmd}" in
 esac
 case "${cmd}" in
   provision|unprovision)
-    test -z "${cloud}" && read -e -p 'Enter cloud provider (e.g. do, aws): ' cloud
-    test -z "${dns}" && read -e -p 'Enter DNS provider (e.g. do, aws, hosts): ' dns
+    test -z "${cloud}" && read -e -p 'Enter cloud provider (e.g. aws, do): ' cloud
+    test -z "${dns}" && read -e -p 'Enter DNS provider (e.g. aws, do, hosts): ' dns
   ;;
 esac
 
