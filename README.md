@@ -41,7 +41,7 @@ $ git clone git@github.com:cloud-elements/hykes-provisioner.git
 $ cd hykes-provisioner
 $ make
 $ make install
-$ build/bin/hykes-blueprinter init
+$ build/bin/hykes-provisioner init
 ```
 
 > __PROTIP:__
