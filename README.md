@@ -10,14 +10,20 @@
 ## Grokking
 ![diagram](http://share.rockymadden.com/1I1A142Y1F3V/Image%202016-01-26%20at%201.06.49%20PM.png)
 
-## Provider Matrix
+## Cloud Provider Matrix
 
-| Name         | Slug    | Cloud   | DNS
-| ------------ | ------- | ------- | ---
-| Amazon       | `aws`   | No      | No
-| DigitalOcean | `do`    | __Yes__ | No
-| OVH          | `ovh`   | No      | No
-| `/etc/hosts` | `hosts` | N/A     | __Yes__
+| Name         | Slug    | Supported
+| ------------ | ------- | ---------
+| Amazon       | `aws`   | No
+| DigitalOcean | `do`    | __Yes__
+
+## DNS Provider Matrix
+
+| Name         | Slug    | Supported
+| ------------ | ------- | ---------
+| Amazon       | `aws`   | No
+| DigitalOcean | `do`    | No
+| `/etc/hosts` | `hosts` | __Yes__
 
 ## Installation
 
