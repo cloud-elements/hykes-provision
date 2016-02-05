@@ -1,8 +1,22 @@
 dependencies:
   pre:
-    - sudo make apt
-    - make gem
+    - sudo apt-add-repository ppa:ansible/ansible -y
+    - sudo add-apt-repository ppa:duggan/bats -y
+    - sudo apt-get update
+    - sudo apt-get install software-properties-common
+    - sudo apt-get install ansible
+    - sudo apt-get install bats
+    - sudo apt-get install git
+    - gem install tugboat
+    - echo -e "${TUGBOAT_TOKEN}\n~/.ssh/id_rsa\nroot\n22\ntor1\nubuntu-14-04-x64\n512mb\n${TUGBOAT_KEYS}\nfalse\nfalse\nfalse" | tugboat authorize
+    - (cd /tmp ; git clone git@github.com:cloud-elements/hykes-blueprinter.git)
+    - (cd /tmp/hykes-blueprinter ; make && make install)
+    - sudo ln -s /tmp/hykes-blueprinter/build/bin/hykes-blueprinter /usr/local/bin/hykes-blueprinter
+
+  post:
+    - hykes-blueprinter init "${HYKES_PROVISIONER_PATH}" "${HYKES_PROVISIONER_URL}"
 
 test:
   override:
-    - make test
+    - if [ "${TEST_UNIT}" -eq 0 ]; then make test-unit; fi;
+    - if [ "${TEST_INTEGRATION}" -eq 0 ]; then make test-integration; fi;
