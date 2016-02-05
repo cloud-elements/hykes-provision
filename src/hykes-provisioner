@@ -2,7 +2,6 @@
 
 bindir=
 etcdir=
-libdir=
 cmd="${1}" ; shift
 
 ## Global utility functions #######################################################################
@@ -91,8 +90,8 @@ test -z "${specs}" && specs='medium'
 
 ## Command utility functions ######################################################################
 function list-inventory-servers() {
-  "${libdir}/hykes-blueprinter/build/bin/hykes-blueprinter" init "${path}" --quiet && \
-  echo "$("${libdir}/hykes-blueprinter/build/bin/hykes-blueprinter" list-servers "${1}" --quiet)"
+  hykes-blueprinter init "${path}" --quiet && \
+  echo "$(hykes-blueprinter list-servers "${1}" --quiet)"
 }
 export -f list-inventory-servers
 
@@ -109,7 +108,7 @@ function await-do-server() {
     *)
       tugboat info "${1}" > /dev/null 2>&1
       case "$?" in
-        0) await-do-server "${1}" "${2}";;
+        0) sleep 10 ; await-do-server "${1}" "${2}" ;;
         *) return 0 ;;
       esac
     ;;
