@@ -12,13 +12,12 @@
 
 ## Provider Matrix
 
-| Type  | Name            | Slug    | Status
-| ----- | --------------- | ------- | ------------
-| Cloud | DigitalOcean    | `do`    | Full Support
-| Cloud | Amazon EC2      | `aws`   | In Development
-| DNS   | DigitalOcean    | `do`    | In Development
-| DNS   | Amazon Route 53 | `aws`   | In Development
-| DNS   | `/etc/hosts`    | `hosts` | Full Support
+| Name         | Slug    | Cloud   | DNS
+| ------------ | ------- | ------- | ---
+| Amazon       | `aws`   | No      | No
+| DigitalOcean | `do`    | __Yes__ | No
+| OVH          | `ovh`   | No      | No
+| `/etc/hosts` | `hosts` | N/A     | __Yes__
 
 ## Installation
 
@@ -74,7 +73,7 @@ More Information:
 ```
 
 > __PROTIPS:__
-* Ensure Tugboat and/or the AWS CLI are initialized themselves before issuing any core commands.
+* Ensure Tugboat and/or the AWS CLI are initialized themselves before issuing any commands.
 * `dns-provider` defaults to `hosts` when not explicitly provided.
 * `specs` defaults to `medium` when not explicitly provided.
 * All commands prompt for required arguments which were not provided via options or arguments. This
