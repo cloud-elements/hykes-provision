@@ -30,7 +30,7 @@ $ brew install hykes-provisioner
 $ hykes-provisioner init
 ```
 
-### Via PPA
+### Via PPA:
 
 In development
 
