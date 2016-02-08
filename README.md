@@ -71,7 +71,7 @@ Core Commands:
 
 More Information:
   chat    https://ce-success.herokuapp.com
-  docs    https://ce-onprem.readthedocs.org
+  docs    https://github.com/cloud-elements/hykes-docs
   repo    https://github.com/cloud-elements/hykes-provisioner
 ```
 
