@@ -28,8 +28,15 @@
 ### Via Homebrew:
 
 ```bash
+# Install via tap:
 $ brew tap cloud-elements/hykes
 $ brew install hykes-provisioner
+
+# Install Tugboat via brew-gem, if using DigitalOcean as a provider:
+$ brew install brew-gem
+$ brew gem install tugboat
+
+# Initialize:
 $ hykes-provisioner init
 ```
 
@@ -77,7 +84,8 @@ More Information:
 ```
 
 > __PROTIPS:__
-* Ensure Tugboat and/or the AWS CLI are initialized themselves before issuing any commands.
+* Ensure [Tugboat](https://github.com/pearkes/tugboat) and/or the
+[AWS CLI](https://github.com/aws/aws-cli) are initialized themselves before issuing any commands.
 * `dns-provider` defaults to `hosts` when not explicitly provided.
 * `specs` defaults to `medium` when not explicitly provided.
 * All commands prompt for required arguments which were not provided via options or arguments. This
