@@ -86,7 +86,6 @@ More Information:
 > __PROTIPS:__
 * Ensure [Tugboat](https://github.com/pearkes/tugboat) and/or the
 [AWS CLI](https://github.com/aws/aws-cli) are initialized themselves before issuing any commands.
-* `dns-provider` defaults to `hosts` when not explicitly provided.
 * `specs` defaults to `medium` when not explicitly provided.
 * All commands prompt for required arguments which were not provided via options or arguments. This
 allows for both traditional usage and prompt-based usage.
