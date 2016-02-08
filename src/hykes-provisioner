@@ -248,7 +248,12 @@ function help() {
 function init() {
   pprint head 'Initializing' ${quiet}
   pprint subhead 'Configuring' ${quiet}
-  write-config-path $(greadlink -f "${path}")
+
+  local gp ; gp=$(greadlink -f "${path}")
+  case "$?" in
+    0) write-config-path "${gp}" ;;
+    *) pprint bad 'failed (path should exist)' ; return 1 ;;
+  esac
 }
 
 function provision() {
