@@ -28,8 +28,15 @@
 ### Via Homebrew:
 
 ```bash
+# Install via tap:
 $ brew tap cloud-elements/hykes
 $ brew install hykes-provisioner
+
+# Install Tugboat via brew-gem, if using DigitalOcean as a provider:
+$ brew install brew-gem
+$ brew gem install tugboat
+
+# Initialize:
 $ hykes-provisioner init
 ```
 
