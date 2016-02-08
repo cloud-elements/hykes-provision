@@ -1,10 +1,10 @@
 # hykes-provisioner <sub><sup>| Automagically provision Cloud Elements clouds</sup></sub>
 [![version](http://img.shields.io/badge/version-v0.0.0-blue.svg)](CHANGELOG.md)
-[![versioning](http://img.shields.io/badge/versioning-semver-blue.svg)](http://semver.org/)
+[![versioning](http://img.shields.io/badge/versioning-semver-blue.svg)](http://semver.org)
 [![branching](http://img.shields.io/badge/branching-github%20flow-blue.svg)](https://guides.github.com/introduction/flow/)
 [![license](http://img.shields.io/badge/license-apache-blue.svg)](LICENSE.md)
-[![slack](http://img.shields.io/badge/slack-join-blue.svg)](https://ce-success.herokuapp.com)
-[![docs](http://img.shields.io/badge/docs-read-blue.svg)](https://ce-onprem.readthedocs.org)
+[![chat](http://img.shields.io/badge/chat-slack-blue.svg)](https://ce-success.herokuapp.com)
+[![docs](http://img.shields.io/badge/docs-repo-blue.svg)](https://ce-onprem.readthedocs.org)
 [![circleci](https://circleci.com/gh/cloud-elements/hykes-provisioner.svg?style=shield)](https://circleci.com/gh/cloud-elements/hykes-provisioner)
 
 ## Grokking
