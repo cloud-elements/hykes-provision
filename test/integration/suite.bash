@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 function only-with-env() {
-  if [ -z "${HYKES_PROVISIONER_PATH}" ]; then skip 'Environment variables should be defined'; fi
+  if [ -z "${HYKES_PROVISIONER_PATH}" ]; then skip 'Environment variables should be available'; fi
 }
 
 function setup() {
