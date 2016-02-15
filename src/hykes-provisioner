@@ -34,14 +34,17 @@ function pprint() {
     esac
   fi
 }
+export -f pprint
 
-function read-config-path() {
+function read_config_path() {
   echo $(test -f "${etcdir}/hykes-provisioner" && sed -n '1p' < "${etcdir}/hykes-provisioner")
 }
+export -f read_config_path
 
-function write-config-path() {
+function write_config_path() {
   echo "${1}" > "${etcdir}/hykes-provisioner"
 }
+export -f write_config_path
 
 ## Argument and option parsing ####################################################################
 while (( "$#" )); do
@@ -85,58 +88,58 @@ case "${cmd}" in
 esac
 
 ## Argument and option defaults ###################################################################
-test -z "${path}" && path=$(read-config-path)
+test -z "${path}" && path=$(read_config_path)
 test -z "${specs}" && specs='medium'
 
 ## Command utility functions ######################################################################
-function list-inventory-servers() {
-  hykes-blueprinter init "${path}" --quiet && \
+function list_inventory_servers() {
+  hykes-blueprinter init "${path}" --quiet
   echo "$(hykes-blueprinter list-servers "${1}" --quiet)"
 }
-export -f list-inventory-servers
+export -f list_inventory_servers
 
-function lookup-inventory-fqdn() {
-  local h=$(list-inventory-servers | head -n 1)
+function lookup_inventory_fqdn() {
+  local h=$(list_inventory_servers | head -n 1)
   echo "${h/app0./}"
 }
-export -f lookup-inventory-fqdn
+export -f lookup_inventory_fqdn
 
 # Cloud providers:
-function await-do-server() {
+function await_do_server() {
   case "${2}" in
     active|inactive) tugboat wait "${1}" --state="${2}" ;;
     *)
       tugboat info "${1}" > /dev/null 2>&1
       case "$?" in
-        0) sleep 10 ; await-do-server "${1}" "${2}" ;;
+        0) sleep 10 ; await_do_server "${1}" "${2}" ;;
         *) return 0 ;;
       esac
     ;;
   esac
 }
-export -f await-do-server
+export -f await_do_server
 
-function create-do-server() {
+function create_do_server() {
   tugboat create "${1}" --size="${2}"
 }
-export -f create-do-server
+export -f create_do_server
 
-function destroy-do-server() {
+function destroy_do_server() {
   yes | tugboat destroy "${1}"
 }
-export -f destroy-do-server
+export -f destroy_do_server
 
-function exists-do-server() {
+function exists_do_server() {
   tugboat info "${1}" > /dev/null 2>&1
 }
-export -f exists-do-server
+export -f exists_do_server
 
-function lookup-do-server-ip() {
+function lookup_do_server_ip() {
   echo "$(tugboat info -n "${1}" --attribute=ip4 --porcelain)"
 }
-export -f lookup-do-server-ip
+export -f lookup_do_server_ip
 
-function size-do-server() {
+function size_do_server() {
   case "${1}" in
     consolidated)
       local xsmall='512mb'
@@ -150,75 +153,75 @@ function size-do-server() {
     *) return 1 ;;
   esac
 }
-export -f size-do-server
+export -f size_do_server
 
-function create-do-cloud() {
-  local size=$(size-do-server consolidated "${specs}")
-  echo "${1}" | xargs -I{} bash -c "create-do-server {} ${size}" && \
-  echo "${1}" | xargs -I{} bash -c "await-do-server {} active"
+function create_do_cloud() {
+  local size=$(size_do_server consolidated "${specs}")
+  echo "${1}" | xargs -I{} bash -c "create_do_server {} ${size}"
+  echo "${1}" | xargs -I{} bash -c "await_do_server {} active"
 }
-export -f create-do-cloud
+export -f create_do_cloud
 
-function destroy-do-cloud() {
-  echo "${1}" | xargs -I{} bash -c "destroy-do-server {}" && \
-  echo "${1}" | xargs -I{} bash -c "await-do-server {} destroyed"
+function destroy_do_cloud() {
+  echo "${1}" | xargs -I{} bash -c "destroy_do_server {}"
+  echo "${1}" | xargs -I{} bash -c "await_do_server {} destroyed"
 }
-export -f create-do-cloud
+export -f destroy_do_cloud
 
-function exists-do-cloud() {
-  echo "${1}" | xargs -I{} bash -c '! exists-do-server {}'
+function exists_do_cloud() {
+  echo "${1}" | xargs -I{} bash -c '! exists_do_server {}'
   case "$?" in
     0) return 1 ;;
     *) return 0 ;;
   esac
 }
-export -f exists-do-cloud
+export -f exists_do_cloud
 
 # DNS providers:
-function create-hosts-map() {
+function create_hosts_map() {
   echo "${1} ${2}" | sudo tee -a /etc/hosts
 }
-export -f create-hosts-map
+export -f create_hosts_map
 
-function destroy-hosts-map() {
+function destroy_hosts_map() {
   sudo sed -i '' "/^${1}/d" /etc/hosts
 }
-export -f destroy-hosts-map
+export -f destroy_hosts_map
 
-function create-hosts-maps-consolidated() {
-  local fqdn=$(lookup-inventory-fqdn)
-  local all=$(list-inventory-servers)
-  local app=$(list-inventory-servers 'app')
+function create_hosts_maps_consolidated() {
+  local fqdn=$(lookup_inventory_fqdn)
+  local all=$(list_inventory_servers)
+  local app=$(list_inventory_servers 'app')
   local appcount=$(echo "${app}" | wc -l | tr ' ' '\0')
 
-  # Loop through all consolidated servers, determine their IP, and then create map in
-  # /etc/hosts. The primary loadbalance role, which exists on the first consolidated
-  # server, needs to have "extra" records so that the core endpoints are reachable upon
-  # the cloud being successfully built (e.g. api.example.com, console.example.com)
+  # Loop through all consolidated servers, determine their IP, and then create map in /etc/hosts.
+  # The primary loadbalance role, which exists on the first consolidated server, needs to have
+  # "extra" records so that the core endpoints are reachable upon the cloud being successfully
+  # built (e.g. api.example.com, console.example.com)
   for ((i=0; i<=appcount-1; i++)); do
     local a=$(echo "${app}" | sed -n "$(( ${i} + 1 ))p")
-    local ip=$(lookup-do-server-ip "${a}") # TODO: Remove coupling
+    local ip=$(lookup_do_server_ip "${a}")
     local rs=$(echo "${all}" | grep "${i}." | tr '\n' ' ')
     if [ ${i} -eq 0 ]; then
       rs="${rs}${fqdn} api.${fqdn} console.${fqdn} logs.${fqdn}"
     fi
 
-    create-hosts-map "${ip}" "${rs}"
+    create_hosts_map "${ip}" "${rs}"
   done
 }
-export -f create-hosts-maps-consolidated
+export -f create_hosts_maps_consolidated
 
-function destroy-hosts-maps() {
+function destroy_hosts_maps() {
   local srvcount=$(echo "${1}" | wc -l | tr ' ' '\0')
 
   for ((i=0; i<=srvcount-1; i++)); do
     local a=$(echo "${1}" | sed -n "$(( ${i} + 1 ))p")
-    local ip=$(lookup-do-server-ip "${a}") # TODO: Remove coupling
+    local ip=$(lookup_do_server_ip "${a}")
 
-    destroy-hosts-map "${ip}"
+    destroy_hosts_map "${ip}"
   done
 }
-export -f destroy-hosts-maps
+export -f destroy_hosts_maps
 
 ## Command functions ##############################################################################
 function help() {
@@ -250,7 +253,7 @@ function init() {
   pprint subhead 'Configuring' ${quiet}
   local gp ; gp=$(greadlink -f "${path}")
   case "$?" in
-    0) write-config-path "${gp}" ;;
+    0) write_config_path "${gp}" ;;
     *) pprint bad 'failed (path should exist)' ${quiet} ; return 1 ;;
   esac
 }
@@ -262,19 +265,19 @@ function provision() {
     do)
       case "${consolidated}" in
         0)
-          local app=$(list-inventory-servers 'app')
+          local app=$(list_inventory_servers 'app')
 
           pprint subhead 'Checking for existing cloud' ${quiet}
-          ! exists-do-cloud "${app}" || \
+          ! exists_do_cloud "${app}" || \
             { pprint bad 'failed (cloud should not exist)' ${quiet} ; return 1; }
 
           pprint subhead 'Creating cloud' ${quiet}
-          create-do-cloud "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
+          create_do_cloud "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
 
           case "${dns}" in
             hosts)
               pprint subhead 'Creating DNS' ${quiet}
-              create-hosts-maps-consolidated || { pprint bad 'failed' ${quiet} ; return 1; }
+              create_hosts_maps_consolidated || { pprint bad 'failed' ${quiet} ; return 1; }
             ;;
           esac
         ;;
@@ -290,21 +293,21 @@ function unprovision() {
     do)
       case "${consolidated}" in
         0)
-          local app=$(list-inventory-servers 'app')
+          local app=$(list_inventory_servers 'app')
 
           pprint subhead 'Checking for existing cloud' ${quiet}
-          exists-do-cloud "${app}" || \
+          exists_do_cloud "${app}" || \
             { pprint bad 'failed (cloud should exist)' ${quiet} ; return 1; }
 
           case "${dns}" in
             hosts)
               pprint subhead 'Destroying DNS' ${quiet}
-              destroy-hosts-maps "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
+              destroy_hosts_maps "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
             ;;
           esac
 
           pprint subhead 'Destroying cloud' ${quiet}
-          destroy-do-cloud "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
+          destroy_do_cloud "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
         ;;
       esac
     ;;
