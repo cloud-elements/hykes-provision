@@ -315,7 +315,7 @@ function unprovision() {
 }
 
 function version() {
-  echo 'v0.0.0'
+  echo 'v0.0.1'
 }
 
 ## Command routing ################################################################################
