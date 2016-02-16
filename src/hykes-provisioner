@@ -243,9 +243,9 @@ function help() {
   echo '  unprovision    Unprovision cloud'
   echo
   echo 'More Information:'
-  echo '  chat    https://ce-success.herokuapp.com'
-  echo '  docs    https://github.com/cloud-elements/hykes-docs'
-  echo '  repo    https://github.com/cloud-elements/hykes-provisioner'
+  echo '  docs     http://dev.cloud-elements.com'
+  echo '  forum    http://forum.cloud-elements.com'
+  echo '  repo     https://github.com/cloud-elements/hykes-provisioner'
 }
 
 function init() {
