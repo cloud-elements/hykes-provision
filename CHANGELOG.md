@@ -1,3 +1,10 @@
+## v0.0.2 <sub><sup>(2016-02-17)</sup></sub>
+
+#### Highlights
+* Renamed project from `hykes-provisioner` to `hykes-provision`
+* Improved CircleCI environment variable trigger detection
+* Minor documentation updates
+
 ## v0.0.1 <sub><sup>(2016-02-15)</sup></sub>
 
 #### Highlights
