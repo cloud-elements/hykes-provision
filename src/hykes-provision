@@ -93,8 +93,8 @@ test -z "${specs}" && specs='medium'
 
 ## Command utility functions ######################################################################
 function list_inventory_servers() {
-  hykes-blueprinter init "${path}" --quiet
-  echo "$(hykes-blueprinter list-servers "${1}" --quiet)"
+  hykes-blueprint init "${path}" --quiet
+  echo "$(hykes-blueprint list-servers "${1}" --quiet)"
 }
 export -f list_inventory_servers
 
