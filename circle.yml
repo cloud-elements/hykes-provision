@@ -14,7 +14,7 @@ dependencies:
     - sudo ln -s /tmp/hykes-blueprinter/build/bin/hykes-blueprinter /usr/local/bin/hykes-blueprinter
 
   post:
-    - hykes-blueprinter init "${HYKES_PROVISIONER_PATH}" "${HYKES_PROVISIONER_URL}"
+    - hykes-blueprinter init "${HYKES_PROVISION_PATH}" "${HYKES_PROVISION_URL}"
 
 test:
   override:

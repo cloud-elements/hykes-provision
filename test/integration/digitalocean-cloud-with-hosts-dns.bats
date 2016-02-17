@@ -3,9 +3,9 @@
 load suite
 
 @test 'provision should create digitalocean cloud with hosts dns' {
-  build/bin/hykes-provisioner provision do hosts --consolidated --specs=xsmall
+  build/bin/hykes-provision provision do hosts --consolidated --specs=xsmall
 }
 
 @test 'unprovision should destroy digitalocean cloud with hosts dns' {
-  build/bin/hykes-provisioner unprovision do hosts --consolidated
+  build/bin/hykes-provision unprovision do hosts --consolidated
 }

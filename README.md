@@ -1,4 +1,4 @@
-# hykes-provisioner <sub><sup>| Automagically provision Cloud Elements clouds</sup></sub>
+# hykes-provision <sub><sup>| Automagically provision Cloud Elements clouds</sup></sub>
 [![version](http://img.shields.io/badge/version-v0.0.1-blue.svg)](CHANGELOG.md)
 [![versioning](http://img.shields.io/badge/versioning-semver-blue.svg)](http://semver.org)
 [![branching](http://img.shields.io/badge/branching-github%20flow-blue.svg)](https://guides.github.com/introduction/flow/)
@@ -6,7 +6,7 @@
 [![pm](http://img.shields.io/badge/pm-zenhub-blue.svg)](https://www.zenhub.io)
 [![docs](http://img.shields.io/badge/docs-read-blue.svg)](http://dev.cloud-elements.com)
 [![forum](http://img.shields.io/badge/forum-join-blue.svg)](http://forum.cloud-elements.com)
-[![circleci](https://circleci.com/gh/cloud-elements/hykes-provisioner.svg?style=shield)](https://circleci.com/gh/cloud-elements/hykes-provisioner)
+[![circleci](https://circleci.com/gh/cloud-elements/hykes-provision.svg?style=shield)](https://circleci.com/gh/cloud-elements/hykes-provision)
 
 ## Cloud Provider Matrix
 
@@ -30,14 +30,14 @@
 ```bash
 # Install via tap:
 $ brew tap cloud-elements/hykes
-$ brew install hykes-provisioner
+$ brew install hykes-provision
 
 # Install Tugboat via brew-gem, if using DigitalOcean as a provider:
 $ brew install brew-gem
 $ brew gem install tugboat
 
 # Initialize:
-$ hykes-provisioner init
+$ hykes-provision init
 ```
 
 ### Via PPA:
@@ -47,11 +47,11 @@ In development
 ### Compiling from Source:
 
 ```bash
-$ git clone git@github.com:cloud-elements/hykes-provisioner.git
-$ cd hykes-provisioner
+$ git clone git@github.com:cloud-elements/hykes-provision.git
+$ cd hykes-provision
 $ make
 $ make install
-$ build/bin/hykes-provisioner init
+$ build/bin/hykes-provision init
 ```
 
 > __PROTIP:__
@@ -62,12 +62,12 @@ on Ubuntu.
 ## Usage
 
 ```bash
-$ hykes-provisioner --help
+$ hykes-provision --help
 Usage:
-  hykes-provisioner init <path> [--quiet|-q]
-  hykes-provisioner provision <cloud-provider> <dns-provider>
+  hykes-provision init <path> [--quiet|-q]
+  hykes-provision provision <cloud-provider> <dns-provider>
     [--consolidated|-c] [--specs|-s <xsmall|small|medium|large|xlarge>] [--quiet|-q]
-  hykes-provisioner unprovision <cloud-provider> <dns-provider>
+  hykes-provision unprovision <cloud-provider> <dns-provider>
     [--consolidated|-c] [--quiet|-q]
 
 Configuration Commands:
@@ -80,7 +80,7 @@ Core Commands:
 More Information:
   docs     http://dev.cloud-elements.com
   forum    http://forum.cloud-elements.com
-  repo     https://github.com/cloud-elements/hykes-provisioner
+  repo     https://github.com/cloud-elements/hykes-provision
 ```
 
 > __PROTIPS:__

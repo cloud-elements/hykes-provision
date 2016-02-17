@@ -1,10 +1,10 @@
 #!/usr/bin/env bats
 
 function only-with-env() {
-  if [ -z "${HYKES_PROVISIONER_PATH}" ]; then skip 'Environment variables should be available'; fi
+  if [ -z "${HYKES_PROVISION_PATH}" ]; then skip 'Environment variables should be available'; fi
 }
 
 function setup() {
   only-with-env
-  build/bin/hykes-provisioner init "${HYKES_PROVISIONER_PATH}"
+  build/bin/hykes-provision init "${HYKES_PROVISION_PATH}"
 }
