@@ -37,12 +37,12 @@ function pprint() {
 export -f pprint
 
 function read_config_path() {
-  echo $(test -f "${etcdir}/hykes-provisioner" && sed -n '1p' < "${etcdir}/hykes-provisioner")
+  echo $(test -f "${etcdir}/hykes-provision" && sed -n '1p' < "${etcdir}/hykes-provision")
 }
 export -f read_config_path
 
 function write_config_path() {
-  echo "${1}" > "${etcdir}/hykes-provisioner"
+  echo "${1}" > "${etcdir}/hykes-provision"
 }
 export -f write_config_path
 
@@ -93,8 +93,8 @@ test -z "${specs}" && specs='medium'
 
 ## Command utility functions ######################################################################
 function list_inventory_servers() {
-  hykes-blueprinter init "${path}" --quiet
-  echo "$(hykes-blueprinter list-servers "${1}" --quiet)"
+  hykes-blueprint init "${path}" --quiet
+  echo "$(hykes-blueprint list-servers "${1}" --quiet)"
 }
 export -f list_inventory_servers
 
@@ -245,7 +245,7 @@ function help() {
   echo 'More Information:'
   echo '  docs     http://dev.cloud-elements.com'
   echo '  forum    http://forum.cloud-elements.com'
-  echo '  repo     https://github.com/cloud-elements/hykes-provisioner'
+  echo '  repo     https://github.com/cloud-elements/hykes-provision'
 }
 
 function init() {

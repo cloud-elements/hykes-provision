@@ -10,15 +10,15 @@ install: | stub
 ifeq (${uname}, Darwin)
 	@$(eval _bindir := $(shell greadlink -f ${bindir}))
 	@$(eval _etcdir := $(shell greadlink -f ${etcdir}))
-	@sed -i '' "s|bindir=|bindir=${_bindir}|g" ${bindir}/hykes-provisioner
-	@sed -i '' "s|etcdir=|etcdir=${_etcdir}|g" ${bindir}/hykes-provisioner
+	@sed -i '' "s|bindir=|bindir=${_bindir}|g" ${bindir}/hykes-provision
+	@sed -i '' "s|etcdir=|etcdir=${_etcdir}|g" ${bindir}/hykes-provision
 else ifeq (${uname}, Linux)
 	@$(eval _bindir := $(shell readlink -f ${bindir}))
 	@$(eval _etcdir := $(shell readlink -f ${etcdir}))
-	@sed -i "s|bindir=|bindir=${_bindir}|g" ${bindir}/hykes-provisioner
-	@sed -i "s|etcdir=|etcdir=${_etcdir}|g" ${bindir}/hykes-provisioner
-	@sed -i "s|sed -i ''|sed -i|g" ${bindir}/hykes-provisioner
-	@sed -i "s|greadlink|readlink|g" ${bindir}/hykes-provisioner
+	@sed -i "s|bindir=|bindir=${_bindir}|g" ${bindir}/hykes-provision
+	@sed -i "s|etcdir=|etcdir=${_etcdir}|g" ${bindir}/hykes-provision
+	@sed -i "s|sed -i ''|sed -i|g" ${bindir}/hykes-provision
+	@sed -i "s|greadlink|readlink|g" ${bindir}/hykes-provision
 endif
 
 stub:
