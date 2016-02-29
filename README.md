@@ -35,9 +35,6 @@ $ brew install hykes-provision
 # Install Tugboat via brew-gem, if using DigitalOcean as a provider:
 $ brew install brew-gem
 $ brew gem install tugboat
-
-# Initialize:
-$ hykes-provision init
 ```
 
 ### Via PPA:
@@ -51,7 +48,6 @@ $ git clone git@github.com:cloud-elements/hykes-provision.git
 $ cd hykes-provision
 $ make
 $ make install
-$ build/bin/hykes-provision init
 ```
 
 > __PROTIP:__
@@ -64,14 +60,10 @@ on Ubuntu.
 ```bash
 $ hykes-provision --help
 Usage:
-  hykes-provision init <path> [--quiet|-q]
   hykes-provision provision <cloud-provider> <dns-provider>
     [--consolidated|-c] [--specs|-s <xsmall|small|medium|large|xlarge>] [--quiet|-q]
   hykes-provision unprovision <cloud-provider> <dns-provider>
     [--consolidated|-c] [--quiet|-q]
-
-Configuration Commands:
-  init    Initialize to work against the given blueprint
 
 Core Commands:
   provision      Provision cloud
@@ -90,7 +82,7 @@ More Information:
 * All commands prompt for required arguments which were not provided via options or arguments. This
 allows for both traditional usage and prompt-based usage.
 * All arguments can be provided as options (e.g. `[--cloud-provider|-c <cloud-provider>]`,
-`[--dns-provider|-d <dns-provider>]`, `[--path|-P <path>]`).
+`[--dns-provider|-d <dns-provider>]`).
 
 ## Changelog
 

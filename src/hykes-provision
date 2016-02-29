@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-bindir=
-etcdir=
 cmd="${1}" ; shift
 
 ## Global utility functions #######################################################################
@@ -36,35 +34,20 @@ function pprint() {
 }
 export -f pprint
 
-function read_config_path() {
-  echo $(test -f "${etcdir}/hykes-provision" && sed -n '1p' < "${etcdir}/hykes-provision")
-}
-export -f read_config_path
-
-function write_config_path() {
-  echo "${1}" > "${etcdir}/hykes-provision"
-}
-export -f write_config_path
-
 ## Argument and option parsing ####################################################################
 while (( "$#" )); do
   case "${1}" in
     --cloud-provider=*) cloud=${1/--cloud-provider=/''} ; shift ;;
     --consolidated) consolidated=0 ; shift ;;
     --dns-provider=*) dns=${1/--dns-provider=/''} ; shift ;;
-    --path=*) path=${1/--path=/''} ; shift ;;
     --quiet) quiet='-q' ; shift ;;
     --specs=*) specs=${1/--specs=/''} ; shift ;;
     -C*) cloud=${2} ; shift ; shift ;;
     -D*) dns=${2} ; shift ; shift ;;
-    -P*) path=${2} ; shift ; shift ;;
     -c) consolidated=0 ; shift ;;
     -q) quiet='-q' ; shift ;;
     -s*) specs=${2} ; shift ; shift ;;
     *)
-      case "${cmd}" in
-        init) test -n "${1}" && test -z "${path}" && path=${1} ;;
-      esac
       case "${cmd}" in
         provision|unprovision)
           test -n "${1}" && test -n "${cloud}" && dns=${1}
@@ -78,9 +61,6 @@ done
 
 ## Argument and option prompting ##################################################################
 case "${cmd}" in
-  init) test -z "${path}" && read -e -p 'Enter local blueprint path: ' path ;;
-esac
-case "${cmd}" in
   provision|unprovision)
     test -z "${cloud}" && read -e -p 'Enter cloud provider (e.g. aws, do): ' cloud
     test -z "${dns}" && read -e -p 'Enter DNS provider (e.g. aws, do, hosts): ' dns
@@ -88,13 +68,11 @@ case "${cmd}" in
 esac
 
 ## Argument and option defaults ###################################################################
-test -z "${path}" && path=$(read_config_path)
 test -z "${specs}" && specs='medium'
 
 ## Command utility functions ######################################################################
 function list_inventory_servers() {
-  hykes-blueprint init "${path}" --quiet
-  echo "$(hykes-blueprint list-servers "${1}" --quiet)"
+  echo "$(hykes-blueprint ls "${1}" --quiet)"
 }
 export -f list_inventory_servers
 
@@ -229,14 +207,10 @@ function help() {
   bin=${a[${#a[@]}-1]}
 
   echo 'Usage:'
-  echo "  ${bin} init <path> [--quiet|-q]"
   echo "  ${bin} provision <cloud-provider> <dns-provider>"
   echo '    [--consolidated|-c] [--specs|-s <xsmall|small|medium|large|xlarge>] [--quiet|-q]'
   echo "  ${bin} unprovision <cloud-provider> <dns-provider>"
   echo '    [--consolidated|-c] [--quiet|-q]'
-  echo
-  echo 'Configuration Commands:'
-  echo '  init    Initialize to work against the given blueprint'
   echo
   echo 'Core Commands:'
   echo '  provision      Provision cloud'
@@ -246,16 +220,6 @@ function help() {
   echo '  docs     http://dev.cloud-elements.com'
   echo '  forum    http://forum.cloud-elements.com'
   echo '  repo     https://github.com/cloud-elements/hykes-provision'
-}
-
-function init() {
-  pprint head 'Initializing' ${quiet}
-  pprint subhead 'Configuring' ${quiet}
-  local gp ; gp=$(greadlink -f "${path}")
-  case "$?" in
-    0) write_config_path "${gp}" ;;
-    *) pprint bad 'failed (path should exist)' ${quiet} ; return 1 ;;
-  esac
 }
 
 function provision() {
@@ -322,6 +286,6 @@ function version() {
 case "${cmd}" in
   --help|-h) help ; exit 0 ;;
   --version|-v) version ; exit 0 ;;
-  init|provision|unprovision) "${cmd}" ; exit "$?" ;;
+  provision|unprovision) "${cmd}" ; exit "$?" ;;
   *) help ; exit 1 ;;
 esac

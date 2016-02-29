@@ -1,10 +1,20 @@
 #!/usr/bin/env bats
 
-function only-with-env() {
-  if [ -z "${HYKES_PROVISION_PATH}" ]; then skip 'Environment variables should be available'; fi
+function clone-repo() {
+  git clone "${HYKES_PROVISION_URL}" "${HYKES_PROVISION_PATH}"
 }
 
+function exists-repo() {
+  test -d "${HYKES_PROVISION_PATH}"
+}
+
+function should-have-env() {
+  if [ -z "${HYKES_PROVISION_PATH}" ] || [ -z "${HYKES_PROVISION_URL}" ]; then
+    skip 'Environment variables should be available'
+  fi
+}
+
+# TODO: Remove hard assumption that blueprint is not encrypted
 function setup() {
-  only-with-env
-  build/bin/hykes-provision init "${HYKES_PROVISION_PATH}"
+  should-have-env && if ! exists-repo; then clone-repo; fi && cd "${HYKES_PROVISION_PATH}"
 }
