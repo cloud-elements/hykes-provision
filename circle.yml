@@ -13,9 +13,6 @@ dependencies:
     - (cd /tmp/hykes-blueprint ; make && make install)
     - sudo ln -s /tmp/hykes-blueprint/build/bin/hykes-blueprint /usr/local/bin/hykes-blueprint
 
-  post:
-    - hykes-blueprint init "${HYKES_PROVISION_PATH}" "${HYKES_PROVISION_URL}"
-
 test:
   override:
     - if [ -n "${TEST_UNIT}" ] && [ "${TEST_UNIT}" -eq 0 ]; then make test-unit; fi;
