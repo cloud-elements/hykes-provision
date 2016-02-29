@@ -1,3 +1,11 @@
+## v0.1.0 <sub><sup>(2016-02-28)</sup></sub>
+
+#### Highlights
+* Commands now work contextually off of the current directory
+* Removed `init` command
+* Minor usage updates
+* Minor documentation updates
+
 ## v0.0.2 <sub><sup>(2016-02-17)</sup></sub>
 
 #### Highlights
