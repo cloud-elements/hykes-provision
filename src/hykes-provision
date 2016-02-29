@@ -223,7 +223,7 @@ function help() {
 }
 
 function provision() {
-  pprint head 'Provisioning' ${quiet}
+  pprint head 'Provision cloud' ${quiet}
 
   case "${cloud}" in
     do)
@@ -231,7 +231,7 @@ function provision() {
         0)
           local app=$(list_inventory_servers 'app')
 
-          pprint subhead 'Checking for existing cloud' ${quiet}
+          pprint subhead 'Checking existence' ${quiet}
           ! exists_do_cloud "${app}" || \
             { pprint bad 'failed (cloud should not exist)' ${quiet} ; return 1; }
 
@@ -251,7 +251,7 @@ function provision() {
 }
 
 function unprovision() {
-  pprint head 'Unprovisioning' ${quiet}
+  pprint head 'Unprovision cloud' ${quiet}
 
   case "${cloud}" in
     do)
@@ -259,7 +259,7 @@ function unprovision() {
         0)
           local app=$(list_inventory_servers 'app')
 
-          pprint subhead 'Checking for existing cloud' ${quiet}
+          pprint subhead 'Checking existence' ${quiet}
           exists_do_cloud "${app}" || \
             { pprint bad 'failed (cloud should exist)' ${quiet} ; return 1; }
 
