@@ -87,7 +87,7 @@ function await_do_server() {
     *)
       tugboat info "${1}" > /dev/null 2>&1
       case "$?" in
-        0) sleep 10 ; await_do_server "${1}" "${2}" ;;
+        0) sleep 8 ; await_do_server "${1}" "${2}" ;;
         *) return 0 ;;
       esac
     ;;
@@ -242,8 +242,10 @@ function create() {
             ;;
           esac
         ;;
+        *) { pprint bad 'failed (cloud should be consolidated)' ${quiet} ; return 1; } ;;
       esac
     ;;
+    *) { pprint bad 'failed (server provider should be supported)' ${quiet} ; return 1; } ;;
   esac
 }
 
@@ -270,8 +272,10 @@ function destroy() {
           pprint subhead 'Destroying servers' ${quiet}
           destroy_do_servers "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
         ;;
+        *) { pprint bad 'failed (cloud should be consolidated)' ${quiet} ; return 1; } ;;
       esac
     ;;
+    *) { pprint bad 'failed (server provider should be supported)' ${quiet} ; return 1; } ;;
   esac
 }
 
