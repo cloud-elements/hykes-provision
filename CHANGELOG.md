@@ -1,3 +1,11 @@
+## v0.2.0 <sub><sup>(2016-03-02)</sup></sub>
+
+#### Highlights
+* `provision` renamed to `create`
+* `unprovision` renamed to `destroy`
+* DNS provider argument no longer required and can now be specified via the `--dns` option
+* Improved pretty outputs
+
 ## v0.1.0 <sub><sup>(2016-02-28)</sup></sub>
 
 #### Highlights
