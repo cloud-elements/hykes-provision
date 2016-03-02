@@ -37,21 +37,20 @@ export -f pprint
 ## Argument and option parsing ####################################################################
 while (( "$#" )); do
   case "${1}" in
-    --cloud-provider=*) cloud=${1/--cloud-provider=/''} ; shift ;;
     --consolidated) consolidated=0 ; shift ;;
-    --dns-provider=*) dns=${1/--dns-provider=/''} ; shift ;;
+    --dns=*) dns=${1/--dns=/''} ; shift ;;
     --quiet) quiet='-q' ; shift ;;
+    --servers=*) servers=${1/--servers=/''} ; shift ;;
     --specs=*) specs=${1/--specs=/''} ; shift ;;
-    -C*) cloud=${2} ; shift ; shift ;;
-    -D*) dns=${2} ; shift ; shift ;;
+    -S*) servers=${2} ; shift ; shift ;;
     -c) consolidated=0 ; shift ;;
+    -d*) dns=${2} ; shift ; shift ;;
     -q) quiet='-q' ; shift ;;
     -s*) specs=${2} ; shift ; shift ;;
     *)
       case "${cmd}" in
         create|destroy)
-          test -n "${1}" && test -n "${cloud}" && dns=${1}
-          test -n "${1}" && test -z "${cloud}" && cloud=${1}
+          test -n "${1}" && test -z "${servers}" && servers=${1}
         ;;
       esac
       shift
@@ -62,8 +61,7 @@ done
 ## Argument and option prompting ##################################################################
 case "${cmd}" in
   create|destroy)
-    test -z "${cloud}" && read -e -p 'Enter cloud provider (e.g. aws, do): ' cloud
-    test -z "${dns}" && read -e -p 'Enter DNS provider (e.g. aws, do, hosts): ' dns
+    test -z "${servers}" && read -e -p 'Enter server provider (e.g. aws, do): ' servers
   ;;
 esac
 
@@ -82,14 +80,14 @@ function lookup_inventory_fqdn() {
 }
 export -f lookup_inventory_fqdn
 
-# Cloud providers:
+# Server providers:
 function await_do_server() {
   case "${2}" in
     active|inactive) tugboat wait "${1}" --state="${2}" ;;
     *)
       tugboat info "${1}" > /dev/null 2>&1
       case "$?" in
-        0) sleep 10 ; await_do_server "${1}" "${2}" ;;
+        0) sleep 8 ; await_do_server "${1}" "${2}" ;;
         *) return 0 ;;
       esac
     ;;
@@ -133,27 +131,27 @@ function size_do_server() {
 }
 export -f size_do_server
 
-function create_do_cloud() {
+function create_do_servers() {
   local size=$(size_do_server consolidated "${specs}")
   echo "${1}" | xargs -I{} bash -c "create_do_server {} ${size}"
   echo "${1}" | xargs -I{} bash -c "await_do_server {} active"
 }
-export -f create_do_cloud
+export -f create_do_servers
 
-function destroy_do_cloud() {
+function destroy_do_servers() {
   echo "${1}" | xargs -I{} bash -c "destroy_do_server {}"
   echo "${1}" | xargs -I{} bash -c "await_do_server {} destroyed"
 }
-export -f destroy_do_cloud
+export -f destroy_do_servers
 
-function exists_do_cloud() {
+function exists_do_servers() {
   echo "${1}" | xargs -I{} bash -c '! exists_do_server {}'
   case "$?" in
     0) return 1 ;;
     *) return 0 ;;
   esac
 }
-export -f exists_do_cloud
+export -f exists_do_servers
 
 # DNS providers:
 function create_hosts_map() {
@@ -174,7 +172,7 @@ function create_hosts_maps_consolidated() {
 
   # Loop through all consolidated servers, determine their IP, and then create map in /etc/hosts.
   # The primary loadbalance role, which exists on the first consolidated server, needs to have
-  # "extra" records so that the core endpoints are reachable upon the cloud being successfully
+  # "extra" records so that the core endpoints are reachable upon the servers being successfully
   # built (e.g. api.example.com, console.example.com)
   for ((i=0; i<=appcount-1; i++)); do
     local a=$(echo "${app}" | sed -n "$(( ${i} + 1 ))p")
@@ -207,10 +205,9 @@ function help() {
   bin=${a[${#a[@]}-1]}
 
   echo 'Usage:'
-  echo "  ${bin} create <cloud-provider> <dns-provider>"
-  echo '    [--consolidated|-c] [--specs|-s <xsmall|small|medium|large|xlarge>] [--quiet|-q]'
-  echo "  ${bin} destroy <cloud-provider> <dns-provider>"
-  echo '    [--consolidated|-c] [--quiet|-q]'
+  echo "  ${bin} create <aws|do> [--consolidated|-c] [--dns|-d <aws|do|hosts>]"
+  echo '    [--specs|-s <xsmall|small|medium|large|xlarge>] [--quiet|-q]'
+  echo "  ${bin} destroy <aws|do> [--consolidated|-c] [--dns|-d <aws|do|hosts>] [--quiet|-q]"
   echo
   echo 'Core Commands:'
   echo '  create     Create cloud'
@@ -225,18 +222,18 @@ function help() {
 function create() {
   pprint head 'Creating' ${quiet}
 
-  case "${cloud}" in
+  case "${servers}" in
     do)
       case "${consolidated}" in
         0)
           local app=$(list_inventory_servers 'app')
 
           pprint subhead 'Checking existence' ${quiet}
-          ! exists_do_cloud "${app}" || \
-            { pprint bad 'failed (cloud should not exist)' ${quiet} ; return 1; }
+          ! exists_do_servers "${app}" || \
+            { pprint bad 'failed (servers should not exist)' ${quiet} ; return 1; }
 
           pprint subhead 'Creating servers' ${quiet}
-          create_do_cloud "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
+          create_do_servers "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
 
           case "${dns}" in
             hosts)
@@ -245,23 +242,25 @@ function create() {
             ;;
           esac
         ;;
+        *) { pprint bad 'failed (cloud should be consolidated)' ${quiet} ; return 1; } ;;
       esac
     ;;
+    *) { pprint bad 'failed (server provider should be supported)' ${quiet} ; return 1; } ;;
   esac
 }
 
 function destroy() {
   pprint head 'Destroying' ${quiet}
 
-  case "${cloud}" in
+  case "${servers}" in
     do)
       case "${consolidated}" in
         0)
           local app=$(list_inventory_servers 'app')
 
           pprint subhead 'Checking existence' ${quiet}
-          exists_do_cloud "${app}" || \
-            { pprint bad 'failed (cloud should exist)' ${quiet} ; return 1; }
+          exists_do_servers "${app}" || \
+            { pprint bad 'failed (servers should exist)' ${quiet} ; return 1; }
 
           case "${dns}" in
             hosts)
@@ -271,10 +270,12 @@ function destroy() {
           esac
 
           pprint subhead 'Destroying servers' ${quiet}
-          destroy_do_cloud "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
+          destroy_do_servers "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
         ;;
+        *) { pprint bad 'failed (cloud should be consolidated)' ${quiet} ; return 1; } ;;
       esac
     ;;
+    *) { pprint bad 'failed (server provider should be supported)' ${quiet} ; return 1; } ;;
   esac
 }
 

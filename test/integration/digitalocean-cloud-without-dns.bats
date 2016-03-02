@@ -3,9 +3,9 @@
 load suite
 
 @test 'create should setup digitalocean servers without concern for dns' {
-  ../../bin/hykes-provision create do none --consolidated --specs=xsmall
+  ../../bin/hykes-provision create do --consolidated --specs=xsmall
 }
 
 @test 'destroy should teardown digitalocean servers without concern for dns' {
-  ../../bin/hykes-provision destroy do none --consolidated
+  ../../bin/hykes-provision destroy do --consolidated
 }
