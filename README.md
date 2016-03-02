@@ -8,7 +8,7 @@
 [![forum](http://img.shields.io/badge/forum-join-blue.svg)](https://forum.cloud-elements.com)
 [![circleci](https://circleci.com/gh/cloud-elements/hykes-provision.svg?style=shield)](https://circleci.com/gh/cloud-elements/hykes-provision)
 
-## Cloud Provider Matrix
+## Server Provider Matrix
 
 | Name         | Slug    | Supported
 | ------------ | ------- | ---------
@@ -60,14 +60,14 @@ on Ubuntu.
 ```bash
 $ hykes-provision --help
 Usage:
-  hykes-provision provision <cloud-provider> <dns-provider>
+  hykes-provision create <cloud-provider> <dns-provider>
     [--consolidated|-c] [--specs|-s <xsmall|small|medium|large|xlarge>] [--quiet|-q]
-  hykes-provision unprovision <cloud-provider> <dns-provider>
+  hykes-provision destroy <cloud-provider> <dns-provider>
     [--consolidated|-c] [--quiet|-q]
 
 Core Commands:
-  provision      Provision cloud
-  unprovision    Unprovision cloud
+  create     Create cloud
+  destroy    Destroy cloud
 
 More Information:
   docs     https://developers.cloud-elements.com
