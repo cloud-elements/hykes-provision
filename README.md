@@ -80,8 +80,8 @@ More Information:
 * `specs` defaults to `medium` when not explicitly provided.
 * All commands prompt for required arguments which were not provided via options or arguments. This
 allows for both traditional usage and prompt-based usage.
-* All arguments can be provided as options (e.g. `[--servers|-S <cloud-provider>]`,
-`[--dns|-d <dns-provider>]`).
+* All arguments can be provided as options (e.g. `[--servers|-S <aws|do>]`,
+`[--dns|-d <aws|do|hosts>]`).
 
 ## Changelog
 
