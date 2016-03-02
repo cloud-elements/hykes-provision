@@ -223,7 +223,7 @@ function help() {
 }
 
 function provision() {
-  pprint head 'Provision cloud' ${quiet}
+  pprint head 'Provisioning' ${quiet}
 
   case "${cloud}" in
     do)
@@ -251,7 +251,7 @@ function provision() {
 }
 
 function unprovision() {
-  pprint head 'Unprovision cloud' ${quiet}
+  pprint head 'Unprovisioning' ${quiet}
 
   case "${cloud}" in
     do)
