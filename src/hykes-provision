@@ -49,7 +49,7 @@ while (( "$#" )); do
     -s*) specs=${2} ; shift ; shift ;;
     *)
       case "${cmd}" in
-        provision|unprovision)
+        create|destroy)
           test -n "${1}" && test -n "${cloud}" && dns=${1}
           test -n "${1}" && test -z "${cloud}" && cloud=${1}
         ;;
@@ -61,7 +61,7 @@ done
 
 ## Argument and option prompting ##################################################################
 case "${cmd}" in
-  provision|unprovision)
+  create|destroy)
     test -z "${cloud}" && read -e -p 'Enter cloud provider (e.g. aws, do): ' cloud
     test -z "${dns}" && read -e -p 'Enter DNS provider (e.g. aws, do, hosts): ' dns
   ;;
@@ -207,14 +207,14 @@ function help() {
   bin=${a[${#a[@]}-1]}
 
   echo 'Usage:'
-  echo "  ${bin} provision <cloud-provider> <dns-provider>"
+  echo "  ${bin} create <cloud-provider> <dns-provider>"
   echo '    [--consolidated|-c] [--specs|-s <xsmall|small|medium|large|xlarge>] [--quiet|-q]'
-  echo "  ${bin} unprovision <cloud-provider> <dns-provider>"
+  echo "  ${bin} destroy <cloud-provider> <dns-provider>"
   echo '    [--consolidated|-c] [--quiet|-q]'
   echo
   echo 'Core Commands:'
-  echo '  provision      Provision cloud'
-  echo '  unprovision    Unprovision cloud'
+  echo '  create     Create cloud'
+  echo '  destroy    Destroy cloud'
   echo
   echo 'More Information:'
   echo '  docs     https://developers.cloud-elements.com'
@@ -222,8 +222,8 @@ function help() {
   echo '  repo     https://github.com/cloud-elements/hykes-provision'
 }
 
-function provision() {
-  pprint head 'Provisioning' ${quiet}
+function create() {
+  pprint head 'Creating' ${quiet}
 
   case "${cloud}" in
     do)
@@ -235,7 +235,7 @@ function provision() {
           ! exists_do_cloud "${app}" || \
             { pprint bad 'failed (cloud should not exist)' ${quiet} ; return 1; }
 
-          pprint subhead 'Creating cloud' ${quiet}
+          pprint subhead 'Creating servers' ${quiet}
           create_do_cloud "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
 
           case "${dns}" in
@@ -250,8 +250,8 @@ function provision() {
   esac
 }
 
-function unprovision() {
-  pprint head 'Unprovisioning' ${quiet}
+function destroy() {
+  pprint head 'Destroying' ${quiet}
 
   case "${cloud}" in
     do)
@@ -270,7 +270,7 @@ function unprovision() {
             ;;
           esac
 
-          pprint subhead 'Destroying cloud' ${quiet}
+          pprint subhead 'Destroying servers' ${quiet}
           destroy_do_cloud "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
         ;;
       esac
@@ -286,6 +286,6 @@ function version() {
 case "${cmd}" in
   --help|-h) help ; exit 0 ;;
   --version|-v) version ; exit 0 ;;
-  provision|unprovision) "${cmd}" ; exit "$?" ;;
+  create|destroy) "${cmd}" ; exit "$?" ;;
   *) help ; exit 1 ;;
 esac

@@ -2,10 +2,10 @@
 
 load suite
 
-@test 'provision should create digitalocean cloud without dns' {
-  ../../bin/hykes-provision provision do none --consolidated --specs=xsmall
+@test 'create should setup digitalocean servers without concern for dns' {
+  ../../bin/hykes-provision create do none --consolidated --specs=xsmall
 }
 
-@test 'unprovision should destroy digitalocean cloud without dns' {
-  ../../bin/hykes-provision unprovision do none --consolidated
+@test 'destroy should teardown digitalocean servers without concern for dns' {
+  ../../bin/hykes-provision destroy do none --consolidated
 }
