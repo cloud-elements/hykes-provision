@@ -2,10 +2,10 @@
 
 load suite
 
-@test 'create should setup digitalocean servers with /etc/hosts dns' {
-  ../../bin/hykes-provision create do hosts --consolidated --specs=xsmall
+@test 'create should setup digitalocean servers and /etc/hosts dns' {
+  ../../bin/hykes-provision create do --dns=hosts --consolidated --specs=xsmall
 }
 
-@test 'destroy should teardown digitalocean servers with /etc/hosts dns' {
-  ../../bin/hykes-provision destroy do hosts --consolidated
+@test 'destroy should teardown digitalocean servers and /etc/hosts dns' {
+  ../../bin/hykes-provision destroy do --dns=hosts --consolidated
 }
