@@ -60,9 +60,9 @@ on Ubuntu.
 ```bash
 $ hykes-provision --help
 Usage:
-  hykes-provision create <aws|do> [--consolidated|-c] [--dns|-d <aws|do|hosts>]
-    [--specs|-s <xsmall|small|medium|large|xlarge>] [--quiet|-q]
-  hykes-provision destroy <aws|do> [--consolidated|-c] [--dns|-d <aws|do|hosts>] [--quiet|-q]
+  hykes-provision create <do> [--consolidated] [--dns <hosts>]
+    [--specs <xsmall|small|medium|large|xlarge>] [--quiet]
+  hykes-provision destroy <do> [--consolidated] [--dns <hosts>] [--quiet]
 
 Core Commands:
   create     Create cloud
@@ -80,8 +80,6 @@ More Information:
 * `specs` defaults to `medium` when not explicitly provided.
 * All commands prompt for required arguments which were not provided via options or arguments. This
 allows for both traditional usage and prompt-based usage.
-* All arguments can be provided as options (e.g. `[--servers|-S <aws|do>]`,
-`[--dns|-d <aws|do|hosts>]`).
 
 ## Changelog
 
