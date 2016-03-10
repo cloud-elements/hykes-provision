@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cmd="${1}" ; shift
+cmd="${1}"; shift
 
 ## Global utility functions #######################################################################
 function pprint() {
@@ -12,8 +12,8 @@ function pprint() {
 
   while (( "$#" )); do
     case "${1}" in
-      -n) local n='-n' ; shift ;;
-      -q) local q='-q' ; shift ;;
+      -n) local n='-n'; shift ;;
+      -q) local q='-q'; shift ;;
       *)
         test -n "${1}" && test -n "${adj}" && local msg=${1}
         test -n "${1}" && test -z "${adj}" && local adj=${1}
@@ -37,16 +37,11 @@ export -f pprint
 ## Argument and option parsing ####################################################################
 while (( "$#" )); do
   case "${1}" in
-    --consolidated) consolidated=0 ; shift ;;
-    --dns=*) dns=${1/--dns=/''} ; shift ;;
-    --quiet) quiet='-q' ; shift ;;
-    --servers=*) servers=${1/--servers=/''} ; shift ;;
-    --specs=*) specs=${1/--specs=/''} ; shift ;;
-    -S*) servers=${2} ; shift ; shift ;;
-    -c) consolidated=0 ; shift ;;
-    -d*) dns=${2} ; shift ; shift ;;
-    -q) quiet='-q' ; shift ;;
-    -s*) specs=${2} ; shift ; shift ;;
+    --consolidated) consolidated=0; shift ;;
+    --dns=*) dns=${1/--dns=/''}; shift ;;
+    --quiet) quiet='-q'; shift ;;
+    --servers=*) servers=${1/--servers=/''}; shift ;;
+    --specs=*) specs=${1/--specs=/''}; shift ;;
     *)
       case "${cmd}" in
         create|destroy)
@@ -61,7 +56,7 @@ done
 ## Argument and option prompting ##################################################################
 case "${cmd}" in
   create|destroy)
-    test -z "${servers}" && read -e -p 'Enter server provider (e.g. aws, do): ' servers
+    test -z "${servers}" && read -e -p 'Enter server provider (e.g. do): ' servers
   ;;
 esac
 
@@ -87,7 +82,7 @@ function await_do_server() {
     *)
       tugboat info "${1}" > /dev/null 2>&1
       case "$?" in
-        0) sleep 8 ; await_do_server "${1}" "${2}" ;;
+        0) sleep 8; await_do_server "${1}" "${2}" ;;
         *) return 0 ;;
       esac
     ;;
@@ -205,9 +200,9 @@ function help() {
   bin=${a[${#a[@]}-1]}
 
   echo 'Usage:'
-  echo "  ${bin} create <aws|do> [--consolidated|-c] [--dns|-d <aws|do|hosts>]"
-  echo '    [--specs|-s <xsmall|small|medium|large|xlarge>] [--quiet|-q]'
-  echo "  ${bin} destroy <aws|do> [--consolidated|-c] [--dns|-d <aws|do|hosts>] [--quiet|-q]"
+  echo "  ${bin} create <do> [--consolidated] [--dns <hosts>]"
+  echo '    [--specs <xsmall|small|medium|large|xlarge>] [--quiet]'
+  echo "  ${bin} destroy <do> [--consolidated] [--dns <hosts>] [--quiet]"
   echo
   echo 'Core Commands:'
   echo '  create     Create cloud'
@@ -230,22 +225,24 @@ function create() {
 
           pprint subhead 'Checking existence' ${quiet}
           ! exists_do_servers "${app}" || \
-            { pprint bad 'failed (servers should not exist)' ${quiet} ; return 1; }
+            { pprint bad 'failed (servers should not exist)' ${quiet}; return 1; }
 
           pprint subhead 'Creating servers' ${quiet}
-          create_do_servers "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
+          create_do_servers "${app}" || { pprint bad 'failed' ${quiet}; return 1; }
 
           case "${dns}" in
+            '') true ;;
             hosts)
               pprint subhead 'Creating DNS' ${quiet}
-              create_hosts_maps_consolidated || { pprint bad 'failed' ${quiet} ; return 1; }
+              create_hosts_maps_consolidated || { pprint bad 'failed' ${quiet}; return 1; }
             ;;
+            *) { pprint bad 'failed (dns provider should be supported)' ${quiet}; return 1; } ;;
           esac
         ;;
-        *) { pprint bad 'failed (cloud should be consolidated)' ${quiet} ; return 1; } ;;
+        *) { pprint bad 'failed (cloud should be consolidated)' ${quiet}; return 1; } ;;
       esac
     ;;
-    *) { pprint bad 'failed (server provider should be supported)' ${quiet} ; return 1; } ;;
+    *) { pprint bad 'failed (server provider should be supported)' ${quiet}; return 1; } ;;
   esac
 }
 
@@ -260,22 +257,24 @@ function destroy() {
 
           pprint subhead 'Checking existence' ${quiet}
           exists_do_servers "${app}" || \
-            { pprint bad 'failed (servers should exist)' ${quiet} ; return 1; }
+            { pprint bad 'failed (servers should exist)' ${quiet}; return 1; }
 
           case "${dns}" in
+            '') true ;;
             hosts)
               pprint subhead 'Destroying DNS' ${quiet}
-              destroy_hosts_maps "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
+              destroy_hosts_maps "${app}" || { pprint bad 'failed' ${quiet}; return 1; }
             ;;
+            *) { pprint bad 'failed (dns provider should be supported)' ${quiet}; return 1; } ;;
           esac
 
           pprint subhead 'Destroying servers' ${quiet}
-          destroy_do_servers "${app}" || { pprint bad 'failed' ${quiet} ; return 1; }
+          destroy_do_servers "${app}" || { pprint bad 'failed' ${quiet}; return 1; }
         ;;
-        *) { pprint bad 'failed (cloud should be consolidated)' ${quiet} ; return 1; } ;;
+        *) { pprint bad 'failed (cloud should be consolidated)' ${quiet}; return 1; } ;;
       esac
     ;;
-    *) { pprint bad 'failed (server provider should be supported)' ${quiet} ; return 1; } ;;
+    *) { pprint bad 'failed (server provider should be supported)' ${quiet}; return 1; } ;;
   esac
 }
 
@@ -285,8 +284,8 @@ function version() {
 
 ## Command routing ################################################################################
 case "${cmd}" in
-  --help|-h) help ; exit 0 ;;
-  --version|-v) version ; exit 0 ;;
-  create|destroy) "${cmd}" ; exit "$?" ;;
-  *) help ; exit 1 ;;
+  --help|-h) help; exit 0 ;;
+  --version|-v) version; exit 0 ;;
+  create|destroy) "${cmd}"; exit "$?" ;;
+  *) help; exit 1 ;;
 esac

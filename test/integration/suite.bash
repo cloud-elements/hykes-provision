@@ -14,7 +14,7 @@ function should-have-env() {
   fi
 }
 
-# TODO: Remove hard assumption that blueprint is not encrypted
+# TODO: Remove assumption that blueprint is not encrypted
 function setup() {
   should-have-env && if ! exists-repo; then clone-repo; fi && cd "${HYKES_PROVISION_PATH}"
 }
