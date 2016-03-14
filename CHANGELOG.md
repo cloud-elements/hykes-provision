@@ -1,3 +1,8 @@
+## v0.2.1 <sub><sup>(2016-03-14)</sup></sub>
+
+#### Highlights
+* Improved output
+
 ## v0.2.0 <sub><sup>(2016-03-02)</sup></sub>
 
 #### Highlights
