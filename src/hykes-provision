@@ -279,7 +279,7 @@ function destroy() {
 }
 
 function version() {
-  echo 'v0.2.0'
+  echo 'v0.2.1'
 }
 
 ## Command routing ################################################################################
