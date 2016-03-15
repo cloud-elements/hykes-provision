@@ -200,9 +200,9 @@ function help() {
   bin=${a[${#a[@]}-1]}
 
   echo 'Usage:'
-  echo "  ${bin} create <do> [--consolidated] [--dns <hosts>]"
-  echo '    [--specs <xsmall|small|medium|large|xlarge>] [--quiet]'
-  echo "  ${bin} destroy <do> [--consolidated] [--dns <hosts>] [--quiet]"
+  echo "  ${bin} create <do> [--consolidated] [--dns=<hosts>]"
+  echo '    [--specs=<xsmall|small|medium|large|xlarge>] [--quiet]'
+  echo "  ${bin} destroy <do> [--consolidated] [--dns=<hosts>] [--quiet]"
   echo
   echo 'Core Commands:'
   echo '  create     Create cloud'

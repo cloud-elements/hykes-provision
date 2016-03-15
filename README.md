@@ -1,4 +1,4 @@
-# hykes-provision <sub><sup>| Automagically provision Cloud Elements clouds</sup></sub>
+# hykes-provision <sub><sup>| Cloud Elements Enterprise infrastructure management</sup></sub>
 [![version](http://img.shields.io/badge/version-v0.2.1-blue.svg)](CHANGELOG.md)
 [![versioning](http://img.shields.io/badge/versioning-semver-blue.svg)](http://semver.org)
 [![branching](http://img.shields.io/badge/branching-github%20flow-blue.svg)](https://guides.github.com/introduction/flow/)
@@ -60,9 +60,9 @@ on Ubuntu.
 ```bash
 $ hykes-provision --help
 Usage:
-  hykes-provision create <do> [--consolidated] [--dns <hosts>]
-    [--specs <xsmall|small|medium|large|xlarge>] [--quiet]
-  hykes-provision destroy <do> [--consolidated] [--dns <hosts>] [--quiet]
+  hykes-provision create <do> [--consolidated] [--dns=<hosts>]
+    [--specs=<xsmall|small|medium|large|xlarge>] [--quiet]
+  hykes-provision destroy <do> [--consolidated] [--dns=<hosts>] [--quiet]
 
 Core Commands:
   create     Create cloud
