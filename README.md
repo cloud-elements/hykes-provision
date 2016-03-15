@@ -60,9 +60,9 @@ on Ubuntu.
 ```bash
 $ hykes-provision --help
 Usage:
-  hykes-provision create <do> [--consolidated] [--dns <hosts>]
-    [--specs <xsmall|small|medium|large|xlarge>] [--quiet]
-  hykes-provision destroy <do> [--consolidated] [--dns <hosts>] [--quiet]
+  hykes-provision create <do> [--consolidated] [--dns=<hosts>]
+    [--specs=<xsmall|small|medium|large|xlarge>] [--quiet]
+  hykes-provision destroy <do> [--consolidated] [--dns=<hosts>] [--quiet]
 
 Core Commands:
   create     Create cloud
