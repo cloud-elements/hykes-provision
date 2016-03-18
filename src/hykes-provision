@@ -281,6 +281,8 @@ function destroy() {
 }
 
 function exists() {
+  pprint head 'exists' ${quiet}
+
   case "${servers}" in
     digitalocean|do)
       case "${consolidated}" in
