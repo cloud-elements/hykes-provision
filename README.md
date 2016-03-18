@@ -10,18 +10,16 @@
 
 ## Server Provider Matrix
 
-| Name         | Slug    | Supported
-| ------------ | ------- | ---------
-| Amazon       | `aws`   | No
-| DigitalOcean | `do`    | __Yes__
+| Name         | Slug           | Supported
+| ------------ | -------------- | ---------
+| DigitalOcean | `digitalocean` | __Yes__
 
 ## DNS Provider Matrix
 
-| Name         | Slug    | Supported
-| ------------ | ------- | ---------
-| Amazon       | `aws`   | No
-| DigitalOcean | `do`    | No
-| `/etc/hosts` | `hosts` | __Yes__
+| Name         | Slug           | Supported
+| ------------ | -------------- | ---------
+| DigitalOcean | `digitalocean` | No
+| `/etc/hosts` | `hosts`        | __Yes__
 
 ## Installation
 
@@ -60,10 +58,10 @@ on Ubuntu.
 ```bash
 $ hykes-provision --help
 Usage:
-  hykes-provision create <do> [--consolidated] [--dns=<hosts>]
+  hykes-provision create <digitalocean> [--consolidated] [--dns=<hosts>]
     [--specs=<xsmall|small|medium|large|xlarge>] [--quiet]
-  hykes-provision destroy <do> [--consolidated] [--dns=<hosts>] [--quiet]
-  hykes-provision exists <do> [--consolidated] [--quiet]
+  hykes-provision destroy <digitalocean> [--consolidated] [--dns=<hosts>] [--quiet]
+  hykes-provision exists <digitalocean> [--consolidated] [--quiet]
 
 Core Commands:
   create     Create infrastructure
