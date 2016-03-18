@@ -9,8 +9,9 @@ dependencies:
     - sudo apt-get install git
     - gem install tugboat
     - echo -e "${TUGBOAT_TOKEN}\n~/.ssh/id_rsa\nroot\n22\ntor1\nubuntu-14-04-x64\n512mb\n${TUGBOAT_KEYS}\nfalse\nfalse\nfalse" | tugboat authorize
-    - (cd /tmp ; git clone git@github.com:cloud-elements/hykes-blueprint.git)
-    - (cd /tmp/hykes-blueprint ; make && make install)
+    - (cd /tmp; git clone git@github.com:cloud-elements/hykes-blueprint.git)
+    - (cd /tmp/hykes-blueprint; git checkout $(git describe --tags $(git rev-list --tags --max-count=1)))
+    - (cd /tmp/hykes-blueprint; make && make install)
     - sudo ln -s /tmp/hykes-blueprint/build/bin/hykes-blueprint /usr/local/bin/hykes-blueprint
 
 test:
