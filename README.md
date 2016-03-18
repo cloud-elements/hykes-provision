@@ -1,5 +1,5 @@
 # hykes-provision <sub><sup>| Cloud Elements Enterprise infrastructure management</sup></sub>
-[![version](http://img.shields.io/badge/version-0.2.1-blue.svg)](CHANGELOG.md)
+[![version](http://img.shields.io/badge/version-0.3.0-blue.svg)](CHANGELOG.md)
 [![spec](http://img.shields.io/badge/spec-%3E%3D%200.0.0-blue.svg)](https://github.com/cloud-elements/hykes-spec)
 [![versioning](http://img.shields.io/badge/versioning-semver-blue.svg)](CONTRIBUTING.md)
 [![branching](http://img.shields.io/badge/branching-github%20flow-blue.svg)](CONTRIBUTING.md)
