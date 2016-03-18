@@ -44,7 +44,7 @@ while (( "$#" )); do
     --specs=*) specs=${1/--specs=/''}; shift ;;
     *)
       case "${cmd}" in
-        create|destroy)
+        create|destroy|exists)
           test -n "${1}" && test -z "${servers}" && servers=${1}
         ;;
       esac
@@ -55,7 +55,7 @@ done
 
 ## Argument and option prompting ##################################################################
 case "${cmd}" in
-  create|destroy)
+  create|destroy|exists)
     test -z "${servers}" && read -e -p 'Enter server provider (e.g. do): ' servers
   ;;
 esac
@@ -203,10 +203,12 @@ function help() {
   echo "  ${bin} create <do> [--consolidated] [--dns=<hosts>]"
   echo '    [--specs=<xsmall|small|medium|large|xlarge>] [--quiet]'
   echo "  ${bin} destroy <do> [--consolidated] [--dns=<hosts>] [--quiet]"
+  echo "  ${bin} exists <do> [--consolidated] [--quiet]"
   echo
   echo 'Core Commands:'
-  echo '  create     Create cloud'
-  echo '  destroy    Destroy cloud'
+  echo '  create     Create infrastructure'
+  echo '  destroy    Destroy infrastructure'
+  echo '  exists     Output boolean indicating if infrastructure exists'
   echo
   echo 'More Information:'
   echo '  docs     https://developers.cloud-elements.com'
@@ -239,7 +241,7 @@ function create() {
             *) { pprint bad 'failed (dns provider should be supported)' ${quiet}; return 1; } ;;
           esac
         ;;
-        *) { pprint bad 'failed (cloud should be consolidated)' ${quiet}; return 1; } ;;
+        *) { pprint bad 'failed (infrastructure should be consolidated)' ${quiet}; return 1; } ;;
       esac
     ;;
     *) { pprint bad 'failed (server provider should be supported)' ${quiet}; return 1; } ;;
@@ -271,7 +273,27 @@ function destroy() {
           pprint subhead 'Destroying servers' ${quiet}
           destroy_do_servers "${app}" || { pprint bad 'failed' ${quiet}; return 1; }
         ;;
-        *) { pprint bad 'failed (cloud should be consolidated)' ${quiet}; return 1; } ;;
+        *) { pprint bad 'failed (infrastructure should be consolidated)' ${quiet}; return 1; } ;;
+      esac
+    ;;
+    *) { pprint bad 'failed (server provider should be supported)' ${quiet}; return 1; } ;;
+  esac
+}
+
+function exists() {
+  case "${servers}" in
+    do)
+      case "${consolidated}" in
+        0)
+          local app=$(list_inventory_servers 'app')
+
+          exists_do_servers "${app}"
+          case "$?" in
+            0) echo 'true' ;;
+            *) echo 'false'; return 1 ;;
+          esac
+        ;;
+        *) { pprint bad 'failed (infrastructure should be consolidated)' ${quiet}; return 1; } ;;
       esac
     ;;
     *) { pprint bad 'failed (server provider should be supported)' ${quiet}; return 1; } ;;
@@ -286,6 +308,6 @@ function version() {
 case "${cmd}" in
   --help|-h) help; exit 0 ;;
   --version|-v) version; exit 0 ;;
-  create|destroy) "${cmd}"; exit "$?" ;;
+  create|destroy|exists) "${cmd}"; exit "$?" ;;
   *) help; exit 1 ;;
 esac

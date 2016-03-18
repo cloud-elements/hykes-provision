@@ -63,10 +63,12 @@ Usage:
   hykes-provision create <do> [--consolidated] [--dns=<hosts>]
     [--specs=<xsmall|small|medium|large|xlarge>] [--quiet]
   hykes-provision destroy <do> [--consolidated] [--dns=<hosts>] [--quiet]
+  hykes-provision exists <do> [--consolidated] [--quiet]
 
 Core Commands:
-  create     Create cloud
-  destroy    Destroy cloud
+  create     Create infrastructure
+  destroy    Destroy infrastructure
+  exists     Output boolean indicating if infrastructure exists
 
 More Information:
   docs     https://developers.cloud-elements.com
