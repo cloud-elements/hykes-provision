@@ -8,20 +8,12 @@
 [![forum](http://img.shields.io/badge/forum-join-blue.svg)](https://forum.cloud-elements.com)
 [![circleci](https://circleci.com/gh/cloud-elements/hykes-provision.svg?style=shield)](https://circleci.com/gh/cloud-elements/hykes-provision)
 
-## Server Provider Matrix
+## Provider Support Matrix
 
-| Name         | Slug    | Supported
-| ------------ | ------- | ---------
-| Amazon       | `aws`   | No
-| DigitalOcean | `do`    | __Yes__
-
-## DNS Provider Matrix
-
-| Name         | Slug    | Supported
-| ------------ | ------- | ---------
-| Amazon       | `aws`   | No
-| DigitalOcean | `do`    | No
-| `/etc/hosts` | `hosts` | __Yes__
+| Name         | Slug(s)                | Servers   | DNS
+| ------------ | ---------------------- | --------- | ---------
+| DigitalOcean | `digitalocean` or `do` | __Yes__   | No (TBA)
+| `/etc/hosts` | `hosts`                | N/A       | __Yes__
 
 ## Installation
 
@@ -60,13 +52,15 @@ on Ubuntu.
 ```bash
 $ hykes-provision --help
 Usage:
-  hykes-provision create <do> [--consolidated] [--dns=<hosts>]
+  hykes-provision create <digitalocean|do> [--consolidated] [--dns=<hosts>]
     [--specs=<xsmall|small|medium|large|xlarge>] [--quiet]
-  hykes-provision destroy <do> [--consolidated] [--dns=<hosts>] [--quiet]
+  hykes-provision destroy <digitalocean|do> [--consolidated] [--dns=<hosts>] [--quiet]
+  hykes-provision exists <digitalocean|do> [--consolidated] [--quiet]
 
 Core Commands:
-  create     Create cloud
-  destroy    Destroy cloud
+  create     Create infrastructure
+  destroy    Destroy infrastructure
+  exists     Output boolean indicating if infrastructure exists
 
 More Information:
   docs     https://developers.cloud-elements.com
