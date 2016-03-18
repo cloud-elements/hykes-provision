@@ -8,18 +8,12 @@
 [![forum](http://img.shields.io/badge/forum-join-blue.svg)](https://forum.cloud-elements.com)
 [![circleci](https://circleci.com/gh/cloud-elements/hykes-provision.svg?style=shield)](https://circleci.com/gh/cloud-elements/hykes-provision)
 
-## Server Provider Matrix
+## Provider Support Matrix
 
-| Name         | Slug           | Supported
-| ------------ | -------------- | ---------
-| DigitalOcean | `digitalocean` | __Yes__
-
-## DNS Provider Matrix
-
-| Name         | Slug           | Supported
-| ------------ | -------------- | ---------
-| DigitalOcean | `digitalocean` | No
-| `/etc/hosts` | `hosts`        | __Yes__
+| Name         | Slug(s)                | Servers   | DNS
+| ------------ | ---------------------- | --------- | ---------
+| DigitalOcean | `digitalocean` or `do` | __Yes__   | No (TBA)
+| `/etc/hosts` | `hosts`                | N/A       | __Yes__
 
 ## Installation
 
@@ -58,10 +52,10 @@ on Ubuntu.
 ```bash
 $ hykes-provision --help
 Usage:
-  hykes-provision create <digitalocean> [--consolidated] [--dns=<hosts>]
+  hykes-provision create <digitalocean|do> [--consolidated] [--dns=<hosts>]
     [--specs=<xsmall|small|medium|large|xlarge>] [--quiet]
-  hykes-provision destroy <digitalocean> [--consolidated] [--dns=<hosts>] [--quiet]
-  hykes-provision exists <digitalocean> [--consolidated] [--quiet]
+  hykes-provision destroy <digitalocean|do> [--consolidated] [--dns=<hosts>] [--quiet]
+  hykes-provision exists <digitalocean|do> [--consolidated] [--quiet]
 
 Core Commands:
   create     Create infrastructure

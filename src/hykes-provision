@@ -200,10 +200,10 @@ function help() {
   bin=${a[${#a[@]}-1]}
 
   echo 'Usage:'
-  echo "  ${bin} create <digitalocean> [--consolidated] [--dns=<hosts>]"
+  echo "  ${bin} create <digitalocean|do> [--consolidated] [--dns=<hosts>]"
   echo '    [--specs=<xsmall|small|medium|large|xlarge>] [--quiet]'
-  echo "  ${bin} destroy <digitalocean> [--consolidated] [--dns=<hosts>] [--quiet]"
-  echo "  ${bin} exists <digitalocean> [--consolidated] [--quiet]"
+  echo "  ${bin} destroy <digitalocean|do> [--consolidated] [--dns=<hosts>] [--quiet]"
+  echo "  ${bin} exists <digitalocean|do> [--consolidated] [--quiet]"
   echo
   echo 'Core Commands:'
   echo '  create     Create infrastructure'
